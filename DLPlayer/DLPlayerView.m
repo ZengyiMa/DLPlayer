@@ -13,6 +13,7 @@
 @interface DLPlayerView ()
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
+@property (nonatomic, assign) DLPlayerStatus status;
 @end
 
 @implementation DLPlayerView
@@ -57,6 +58,24 @@
     AVPlayerItem *videoItem = [AVPlayerItem playerItemWithURL:url];
     [self.player replaceCurrentItemWithPlayerItem:videoItem];
     [self.player play];
+    
 }
+
+#pragma mark - seter
+- (void)setStatus:(DLPlayerStatus)status
+{
+    if (_status == status) {
+        return;
+    }
+    _status = status;
+    if ([self.delegate respondsToSelector:@selector(playerView:statusDidChanged:)]) {
+        [self.delegate playerView:self statusDidChanged:_status];
+    }
+}
+
+
+
+
+
 
 @end
