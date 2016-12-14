@@ -39,7 +39,9 @@
 
 - (void)initPlayerView
 {
+    self.player = [AVPlayer new];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+    [self.layer addSublayer:self.playerLayer];
 }
 
 @end
