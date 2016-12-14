@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -28,18 +29,30 @@
                                     <constraint firstAttribute="height" constant="150" id="Bm7-Sd-J4r"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="状态：停止" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r4Y-5y-NqQ">
+                                <rect key="frame" x="16" y="180" width="87" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="UJs-Xf-mZG" secondAttribute="trailing" id="8qz-Pk-QAt"/>
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="FxP-Lm-NJU"/>
+                            <constraint firstItem="r4Y-5y-NqQ" firstAttribute="top" secondItem="UJs-Xf-mZG" secondAttribute="bottom" constant="30" id="SjQ-ep-bZh"/>
+                            <constraint firstItem="r4Y-5y-NqQ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="eZG-bP-7pN"/>
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="gVv-h8-WTV"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="playerView" destination="UJs-Xf-mZG" id="5K7-xx-jYR"/>
+                        <outlet property="statusLabel" destination="r4Y-5y-NqQ" id="qrl-6t-xoD"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="20" y="140.77961019490255"/>
+            <point key="canvasLocation" x="-164" y="134"/>
         </scene>
     </scenes>
 </document>

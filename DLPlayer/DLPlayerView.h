@@ -11,6 +11,7 @@
 @interface DLPlayerView : UIView
 
 
+- (void)playWithURL:(NSURL *)url;
 
 
 @end

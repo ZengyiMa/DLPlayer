@@ -39,9 +39,24 @@
 
 - (void)initPlayerView
 {
+    self.backgroundColor = [UIColor blackColor];
     self.player = [AVPlayer new];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
     [self.layer addSublayer:self.playerLayer];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    self.playerLayer.frame = self.bounds;
+}
+
+
+- (void)playWithURL:(NSURL *)url
+{
+    AVPlayerItem *videoItem = [AVPlayerItem playerItemWithURL:url];
+    [self.player replaceCurrentItemWithPlayerItem:videoItem];
+    [self.player play];
 }
 
 @end
