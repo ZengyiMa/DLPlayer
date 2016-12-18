@@ -15,6 +15,8 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
     DLPlayerStatusPlaying,
     DLPlayerStatusPause,
     DLPlayerStatusStop,
+    DLPlayerStatusSeekStart,
+    DLPlayerStatusSeekEnd
 };
 
 
