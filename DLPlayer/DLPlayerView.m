@@ -74,6 +74,20 @@
     }];
 }
 
+
+
+- (void)addObserver
+{
+    
+}
+
+- (void)removeObserver
+{
+    
+}
+
+
+
 #pragma mark - seter
 - (void)setStatus:(DLPlayerStatus)status
 {
