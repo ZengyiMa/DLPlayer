@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
 
 @class DLPlayerView;
 
@@ -23,7 +24,9 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @protocol DLPlayerDelegate <NSObject>
 
 @optional
-- (void)playerView:(DLPlayerView *)playerView statusDidChanged:(DLPlayerStatus)status;
+- (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status;
+
+- (void)playerView:(DLPlayerView *)playerView didPlayToTime:(CMTime)time;
 
 @end
 
