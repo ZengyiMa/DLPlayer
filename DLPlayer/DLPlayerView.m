@@ -14,6 +14,7 @@
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, assign) DLPlayerStatus status;
+@property (nonatomic, strong) AVAsset *currentAsset;
 @end
 
 @implementation DLPlayerView
@@ -55,10 +56,22 @@
 
 - (void)playWithURL:(NSURL *)url
 {
-    AVPlayerItem *videoItem = [AVPlayerItem playerItemWithURL:url];
-    [self.player replaceCurrentItemWithPlayerItem:videoItem];
-    [self.player play];
-    
+    if (self.currentAsset) {
+        [self.player replaceCurrentItemWithPlayerItem:nil];
+    }
+    self.currentAsset = [AVAsset assetWithURL:url];
+    __weak typeof(self) weakSelf = self;
+    [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
+//        __strong typeof(self) strongSelf = self;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (weakSelf.currentAsset.playable) {
+                // 可以播放了
+                AVPlayerItem *playItem = [AVPlayerItem playerItemWithAsset:weakSelf.currentAsset];
+                [weakSelf.player replaceCurrentItemWithPlayerItem:playItem];
+                [weakSelf.player play];
+            }
+        });
+    }];
 }
 
 #pragma mark - seter
