@@ -18,6 +18,9 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, assign) DLPlayerStatus status;
 @property (nonatomic, strong) AVAsset *currentAsset;
+@property (nonatomic, assign) CGFloat duration;
+@property (nonatomic, strong) id timeToken;
+
 @end
 
 @implementation DLPlayerView
@@ -63,8 +66,12 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     // Notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemPlaybackStalledNotification) name:AVPlayerItemPlaybackStalledNotification object:nil];
+    
+    __weak typeof(self) weakSelf = self;
+    self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
+    }];
 }
-
 
 
 
@@ -98,7 +105,11 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
     if ([keyPath isEqualToString:DLPlayerItemDuration]) {
-        
+        NSValue *durationValue = change[NSKeyValueChangeNewKey];
+        if (![durationValue isKindOfClass:[NSValue class]]) {
+            return;
+        }
+        self.duration = CMTimeGetSeconds(durationValue.CMTimeValue);
     }
     else if ([keyPath isEqualToString:DLPlayerItemStatus])
     {
@@ -124,6 +135,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 {
     [self removeObserver:self forKeyPath:DLPlayerItemStatus];
     [self removeObserver:self forKeyPath:DLPlayerItemDuration];
+    [self.player removeTimeObserver:self.timeToken];
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
@@ -140,6 +152,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     _status = status;
     if ([self.delegate respondsToSelector:@selector(playerView:didChangedStatus:)]) {
         [self.delegate playerView:self didChangedStatus:_status];
+    }
+}
+
+
+- (void)setPlayToTime:(CGFloat)second
+{
+    if ([self.delegate respondsToSelector:@selector(playerView:didPlayToSecond:)]) {
+        [self.delegate playerView:self didPlayToSecond:second];
     }
 }
 

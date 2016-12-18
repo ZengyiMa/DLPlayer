@@ -26,7 +26,7 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @optional
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status;
 
-- (void)playerView:(DLPlayerView *)playerView didPlayToTime:(CMTime)time;
+- (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second;
 
 @end
 
@@ -35,6 +35,8 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @interface DLPlayerView : UIView
 
 @property (nonatomic, assign, readonly) DLPlayerStatus status;
+
+@property (nonatomic, assign, readonly) CGFloat duration;
 
 @property (nonatomic, weak) id<DLPlayerDelegate> delegate;
 
