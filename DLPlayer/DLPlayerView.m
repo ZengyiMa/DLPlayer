@@ -138,8 +138,8 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         return;
     }
     _status = status;
-    if ([self.delegate respondsToSelector:@selector(playerView:statusDidChanged:)]) {
-        [self.delegate playerView:self statusDidChanged:_status];
+    if ([self.delegate respondsToSelector:@selector(playerView:didChangedStatus:)]) {
+        [self.delegate playerView:self didChangedStatus:_status];
     }
 }
 
