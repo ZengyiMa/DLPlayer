@@ -63,16 +63,36 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
               context:nil];
     
+    [self addObserver:self
+           forKeyPath:@"player.currentItem.playbackBufferEmpty"
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
+    
+    [self addObserver:self
+           forKeyPath:@"player.currentItem.playbackLikelyToKeepUp"
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
+    
+    
     // Notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemPlaybackStalledNotification) name:AVPlayerItemPlaybackStalledNotification object:nil];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemNewAccessLogEntryNotification) name:AVPlayerItemNewAccessLogEntryNotification object:nil];
+
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
-        if (weakSelf.status != DLPlayerStatusPause && weakSelf.status != DLPlayerStatusStop) {
-            weakSelf.status = DLPlayerStatusPlaying;
+        
+        CGFloat second = CMTimeGetSeconds(time);
+        if (second > 0.1) {
+            // 一些视频会先开始走
+            if (weakSelf.status != DLPlayerStatusPause && weakSelf.status != DLPlayerStatusStop) {
+                weakSelf.status = DLPlayerStatusPlaying;
+            }
+            [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
         }
-        [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
+        
+       
     }];
 }
 
@@ -162,6 +182,16 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             }
         }
     }
+    else if ([keyPath isEqualToString:@"player.currentItem.playbackBufferEmpty"])
+    {
+        NSLog(@"player.currentItem.playbackBufferEmpty = %@", change);
+    }
+    else if ([keyPath isEqualToString:@"player.currentItem.playbackLikelyToKeepUp"])
+    {
+        NSLog(@"player.currentItem.playbackLikelyToKeepUp = %@", change);
+    }
+    
+    
 }
 
 #pragma mark - Selector
@@ -177,7 +207,12 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)didReceiveAVPlayerItemPlaybackStalledNotification
 {
-    
+    NSLog(@"didReceiveAVPlayerItemPlaybackStalledNotification");
+}
+
+- (void)didReceiveAVPlayerItemNewAccessLogEntryNotification
+{
+    NSLog(@"didReceiveAVPlayerItemNewAccessLogEntryNotification");
 }
 
 - (void)dealloc
