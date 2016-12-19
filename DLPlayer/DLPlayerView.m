@@ -92,12 +92,11 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     self.status = DLPlayerStatusPrepareStart;
     [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
+            self.status = DLPlayerStatusPrepareEnd;
             if (weakSelf.currentAsset.playable) {
                 // 可以播放了
                 AVPlayerItem *playItem = [AVPlayerItem playerItemWithAsset:weakSelf.currentAsset];
                 [weakSelf.player replaceCurrentItemWithPlayerItem:playItem];
-                [weakSelf.player play];
-                self.status = DLPlayerStatusPrepareEnd;
             }
         });
     }];
@@ -115,7 +114,15 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     }
     else if ([keyPath isEqualToString:DLPlayerItemStatus])
     {
-        
+        NSNumber *statusValue = change[NSKeyValueChangeNewKey];
+        if (![statusValue isKindOfClass:[NSNumber class]]) {
+            return;
+        }
+        AVPlayerStatus status = statusValue.integerValue;
+        if (status == AVPlayerStatusReadyToPlay) {
+            [self.player play];
+            self.status = DLPlayerStatusPlaying;
+        }
     }
 }
 

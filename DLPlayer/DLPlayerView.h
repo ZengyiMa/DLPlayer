@@ -12,6 +12,7 @@
 @class DLPlayerView;
 
 typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
+    DLPlayerStatusPrepareIdle,
     DLPlayerStatusPrepareStart,    
     DLPlayerStatusPrepareEnd,
     DLPlayerStatusPlaying,
