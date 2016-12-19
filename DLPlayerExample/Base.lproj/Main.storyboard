@@ -62,12 +62,21 @@
                                     <action selector="stop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="And-sy-4Qw"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NgL-A8-PTy">
+                                <rect key="frame" x="172" y="579" width="31" height="30"/>
+                                <state key="normal" title="回放"/>
+                                <connections>
+                                    <action selector="pause:" destination="BYZ-38-t0r" eventType="touchUpInside" id="AK0-l4-XdR"/>
+                                    <action selector="replay:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5mW-qf-Bb3"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="UJs-Xf-mZG" secondAttribute="trailing" id="8qz-Pk-QAt"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="8sc-UG-0BL" secondAttribute="bottom" constant="20" id="CCg-fg-ALF"/>
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="FxP-Lm-NJU"/>
+                            <constraint firstItem="NgL-A8-PTy" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OKY-QS-gIl"/>
                             <constraint firstItem="r4Y-5y-NqQ" firstAttribute="top" secondItem="UJs-Xf-mZG" secondAttribute="bottom" constant="30" id="SjQ-ep-bZh"/>
                             <constraint firstItem="dpt-Gw-BeE" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="StY-iF-f2H"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="rJU-L6-vpl" secondAttribute="bottom" constant="20" id="bv7-LW-WU4"/>
@@ -78,6 +87,7 @@
                             <constraint firstItem="rJU-L6-vpl" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="8" id="mE2-v6-7Um"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="top" secondItem="r4Y-5y-NqQ" secondAttribute="bottom" constant="8" id="wHD-NM-7C2"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zZK-Vv-jre"/>
+                            <constraint firstItem="8sc-UG-0BL" firstAttribute="top" secondItem="NgL-A8-PTy" secondAttribute="bottom" constant="8" id="zxa-ih-uF1"/>
                         </constraints>
                     </view>
                     <connections>

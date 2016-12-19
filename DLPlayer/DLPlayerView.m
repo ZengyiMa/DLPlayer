@@ -135,6 +135,11 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     self.status = DLPlayerStatusStop;
 }
 
+- (void)replay
+{
+    [self stopWithSeekToStart:YES];
+    [self resume];
+}
 
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
@@ -177,9 +182,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 {
     
 }
-
-
-
 
 - (void)dealloc
 {

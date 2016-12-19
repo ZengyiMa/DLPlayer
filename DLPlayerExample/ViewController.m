@@ -41,8 +41,6 @@
 }
 
 
-
-
 - (IBAction)statr:(id)sender {
     [self.playerView resume];
 }
@@ -51,6 +49,9 @@
 }
 - (IBAction)stop:(id)sender {
     [self.playerView stop];
+}
+- (IBAction)replay:(id)sender {
+    [self.playerView replay];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
