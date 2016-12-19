@@ -37,12 +37,14 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @interface DLPlayerView : UIView
 
 @property (nonatomic, assign, readonly) DLPlayerStatus status;
-
 @property (nonatomic, assign, readonly) CGFloat duration;
 
 @property (nonatomic, weak) id<DLPlayerDelegate> delegate;
 
 - (void)playWithURL:(NSURL *)url;
 
+- (void)resume;
+- (void)pause;
+- (void)stop;
 
 @end

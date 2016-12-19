@@ -69,6 +69,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
+        weakSelf.status = DLPlayerStatusPlaying;
         [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
     }];
 }
@@ -121,7 +122,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         AVPlayerStatus status = statusValue.integerValue;
         if (status == AVPlayerStatusReadyToPlay) {
             [self.player play];
-            self.status = DLPlayerStatusPlaying;
         }
     }
 }
