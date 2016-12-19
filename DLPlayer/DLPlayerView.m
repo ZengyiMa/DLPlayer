@@ -21,6 +21,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 @property (nonatomic, assign) CGFloat duration;
 @property (nonatomic, strong) id timeToken;
 
+@property (nonatomic, assign) BOOL autoPlay;
 @end
 
 @implementation DLPlayerView
@@ -69,7 +70,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
-        weakSelf.status = DLPlayerStatusPlaying;
+        
+        if (weakSelf.status != DLPlayerStatusPause && weakSelf.status != DLPlayerStatusStop) {
+            weakSelf.status = DLPlayerStatusPlaying;
+        }
         [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
     }];
 }
@@ -83,7 +87,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 }
 
 
-- (void)playWithURL:(NSURL *)url
+- (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay
 {
     if (self.currentAsset) {
         [self.player replaceCurrentItemWithPlayerItem:nil];
@@ -107,6 +111,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 - (void)resume
 {
     [self.player play];
+    self.status = DLPlayerStatusPlaying;
 }
 
 - (void)pause
@@ -167,10 +172,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self.player removeTimeObserver:self.timeToken];
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
-
-
-
-
 
 #pragma mark - seter
 - (void)setStatus:(DLPlayerStatus)status

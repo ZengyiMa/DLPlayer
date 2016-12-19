@@ -37,7 +37,7 @@
                        @(DLPlayerStatusSeekEnd):@"结束拖动",
                        };
     
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"]];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
     self.playerView.delegate = self;
 }
 

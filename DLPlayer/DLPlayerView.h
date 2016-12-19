@@ -41,7 +41,7 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 
 @property (nonatomic, weak) id<DLPlayerDelegate> delegate;
 
-- (void)playWithURL:(NSURL *)url;
+- (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay;
 
 - (void)resume;
 - (void)pause;
