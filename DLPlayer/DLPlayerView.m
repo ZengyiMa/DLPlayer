@@ -89,6 +89,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay
 {
+    self.autoPlay = autoPlay;
     if (self.currentAsset) {
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
@@ -146,7 +147,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         }
         AVPlayerStatus status = statusValue.integerValue;
         if (status == AVPlayerStatusReadyToPlay) {
-            [self.player play];
+            self.status = DLPlayerStatusReadyToPlay;
+            if (self.autoPlay) {
+                [self.player play];
+            }
         }
     }
 }
@@ -154,7 +158,8 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 #pragma mark - Selector
 - (void)didReceiveAVPlayerItemDidPlayToEndTimeNotification
 {
-    
+    // 播放完毕
+    [self stop];
 }
 
 - (void)didReceiveAVPlayerItemPlaybackStalledNotification

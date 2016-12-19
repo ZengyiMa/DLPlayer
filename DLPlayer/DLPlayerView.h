@@ -15,6 +15,7 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
     DLPlayerStatusPrepareIdle,
     DLPlayerStatusPrepareStart,    
     DLPlayerStatusPrepareEnd,
+    DLPlayerStatusReadyToPlay,
     DLPlayerStatusPlaying,
     DLPlayerStatusPause,
     DLPlayerStatusStop,
@@ -27,7 +28,6 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 
 @optional
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status;
-
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second;
 
 @end

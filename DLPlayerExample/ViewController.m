@@ -26,10 +26,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-
-    
+    self.playerView.delegate = self;
     self.statusDic = @{@(DLPlayerStatusPrepareStart):@"准备开始",
                        @(DLPlayerStatusPrepareEnd):@"准备结束",
+                       @(DLPlayerStatusReadyToPlay):@"准备播放",
                        @(DLPlayerStatusPlaying):@"播放中",
                        @(DLPlayerStatusPause):@"播放暂停",
                        @(DLPlayerStatusStop):@"播放结束",
@@ -38,7 +38,6 @@
                        };
     
     [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
-    self.playerView.delegate = self;
 }
 
 
