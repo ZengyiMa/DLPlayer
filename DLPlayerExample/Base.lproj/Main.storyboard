@@ -41,14 +41,41 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rJU-L6-vpl">
+                                <rect key="frame" x="24" y="617" width="31" height="30"/>
+                                <state key="normal" title="开始"/>
+                                <connections>
+                                    <action selector="statr:" destination="BYZ-38-t0r" eventType="touchUpInside" id="euI-Yc-noX"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8sc-UG-0BL">
+                                <rect key="frame" x="172" y="617" width="31" height="30"/>
+                                <state key="normal" title="暂停"/>
+                                <connections>
+                                    <action selector="pause:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7mM-3b-dJO"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dpt-Gw-BeE">
+                                <rect key="frame" x="328" y="617" width="31" height="30"/>
+                                <state key="normal" title="停止"/>
+                                <connections>
+                                    <action selector="stop:" destination="BYZ-38-t0r" eventType="touchUpInside" id="And-sy-4Qw"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="UJs-Xf-mZG" secondAttribute="trailing" id="8qz-Pk-QAt"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="8sc-UG-0BL" secondAttribute="bottom" constant="20" id="CCg-fg-ALF"/>
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="FxP-Lm-NJU"/>
                             <constraint firstItem="r4Y-5y-NqQ" firstAttribute="top" secondItem="UJs-Xf-mZG" secondAttribute="bottom" constant="30" id="SjQ-ep-bZh"/>
+                            <constraint firstItem="dpt-Gw-BeE" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="StY-iF-f2H"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="rJU-L6-vpl" secondAttribute="bottom" constant="20" id="bv7-LW-WU4"/>
+                            <constraint firstItem="8sc-UG-0BL" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="dZ1-aP-LQe"/>
                             <constraint firstItem="r4Y-5y-NqQ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="eZG-bP-7pN"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="dpt-Gw-BeE" secondAttribute="bottom" constant="20" id="g8d-Zi-cdM"/>
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="gVv-h8-WTV"/>
+                            <constraint firstItem="rJU-L6-vpl" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="8" id="mE2-v6-7Um"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="top" secondItem="r4Y-5y-NqQ" secondAttribute="bottom" constant="8" id="wHD-NM-7C2"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zZK-Vv-jre"/>
                         </constraints>

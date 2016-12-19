@@ -103,6 +103,26 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     }];
 }
 
+
+- (void)resume
+{
+    [self.player play];
+}
+
+- (void)pause
+{
+    [self.player pause];
+    self.status = DLPlayerStatusPause;
+}
+
+- (void)stop
+{
+    [self.player pause];
+    [self.player seekToTime:kCMTimeZero];
+    self.status = DLPlayerStatusStop;
+}
+
+
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {

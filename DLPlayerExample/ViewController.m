@@ -41,6 +41,19 @@
     self.playerView.delegate = self;
 }
 
+
+
+
+- (IBAction)statr:(id)sender {
+    [self.playerView resume];
+}
+- (IBAction)pause:(id)sender {
+    [self.playerView pause];
+}
+- (IBAction)stop:(id)sender {
+    [self.playerView stop];
+}
+
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
 {
     self.timeLabel.text = [NSString stringWithFormat:@"当前时间：%fs, 总时间：%fs",second, playerView.duration];
