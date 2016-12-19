@@ -123,8 +123,15 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)stop
 {
+    [self stopWithSeekToStart:NO];
+}
+
+- (void)stopWithSeekToStart:(BOOL)seekToStart
+{
     [self.player pause];
-    [self.player seekToTime:kCMTimeZero];
+    if (seekToStart) {
+        [self.player seekToTime:kCMTimeZero];
+    }
     self.status = DLPlayerStatusStop;
 }
 
@@ -159,7 +166,11 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 - (void)didReceiveAVPlayerItemDidPlayToEndTimeNotification
 {
     // 播放完毕
-    [self stop];
+    BOOL seekToStart = NO;
+    if ([self.delegate respondsToSelector:@selector(shouldSeekToStartWhenPlayToEndTimeOfPlayerView:)]) {
+        seekToStart = [self.delegate respondsToSelector:@selector(shouldSeekToStartWhenPlayToEndTimeOfPlayerView:)];
+    }
+    [self stopWithSeekToStart:seekToStart];
 }
 
 - (void)didReceiveAVPlayerItemPlaybackStalledNotification

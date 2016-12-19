@@ -29,7 +29,7 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @optional
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status;
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second;
-
+- (BOOL)shouldSeekToStartWhenPlayToEndTimeOfPlayerView:(DLPlayerView *)playerView;
 @end
 
 
@@ -46,5 +46,8 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (void)resume;
 - (void)pause;
 - (void)stop;
+
+- (void)stopWithSeekToStart:(BOOL)seekToStart;
+
 
 @end
