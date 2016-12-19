@@ -89,6 +89,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     }
     self.currentAsset = [AVAsset assetWithURL:url];
     __weak typeof(self) weakSelf = self;
+    self.status = DLPlayerStatusPrepareStart;
     [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             if (weakSelf.currentAsset.playable) {
@@ -96,6 +97,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
                 AVPlayerItem *playItem = [AVPlayerItem playerItemWithAsset:weakSelf.currentAsset];
                 [weakSelf.player replaceCurrentItemWithPlayerItem:playItem];
                 [weakSelf.player play];
+                self.status = DLPlayerStatusPrepareEnd;
             }
         });
     }];
