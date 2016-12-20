@@ -166,7 +166,9 @@ didReceiveResponse:(NSURLResponse *)response
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)dataTask.response;
     NSDictionary *fields = (NSDictionary *)[httpResponse allHeaderFields] ;
     if (!self.contentType) {
-        self.contentType = fields[@"Content-Type"];
+        NSString *mimetype = fields[@"Content-Type"];
+        CFStringRef contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (__bridge CFStringRef _Nonnull)(mimetype), NULL);
+        self.contentType = CFBridgingRelease(contentType);
     }
     
     if (self.contentLength == 0) {
