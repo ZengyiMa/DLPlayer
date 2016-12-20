@@ -221,6 +221,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
                 [self.player play];
             }
         }
+        else
+        {
+            self.status = DLPlayerStatusFailed;
+        }
     }
 //    else if ([keyPath isEqualToString:@"player.currentItem.playbackBufferEmpty"])
 //    {

@@ -13,7 +13,8 @@
 
 typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
     DLPlayerStatusPrepareIdle,
-    DLPlayerStatusPrepareStart,    
+    
+    DLPlayerStatusPrepareStart,
     DLPlayerStatusPrepareEnd,
     DLPlayerStatusReadyToPlay,
     DLPlayerStatusPlaying,
@@ -22,7 +23,8 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
     DLPlayerStatusStalledStart,
     DLPlayerStatusStalledEnd,
     DLPlayerStatusSeekStart,
-    DLPlayerStatusSeekEnd
+    DLPlayerStatusSeekEnd,
+    DLPlayerStatusFailed,
 };
 
 
