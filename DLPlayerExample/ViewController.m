@@ -30,6 +30,8 @@
                        @(DLPlayerStatusStop):@"播放结束",
                        @(DLPlayerStatusSeekStart):@"开始拖动",
                        @(DLPlayerStatusSeekEnd):@"结束拖动",
+                       @(DLPlayerStatusStalledStart):@"卡顿开始",
+                       @(DLPlayerStatusStalledEnd):@"卡顿结束",
                        };
     
 //    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];

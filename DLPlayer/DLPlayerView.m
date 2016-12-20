@@ -63,15 +63,15 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
               context:nil];
     
-    [self addObserver:self
-           forKeyPath:@"player.currentItem.playbackBufferEmpty"
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
-    
-    [self addObserver:self
-           forKeyPath:@"player.currentItem.playbackLikelyToKeepUp"
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
+//    [self addObserver:self
+//           forKeyPath:@"player.currentItem.playbackBufferEmpty"
+//              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+//              context:nil];
+//    
+//    [self addObserver:self
+//           forKeyPath:@"player.currentItem.playbackLikelyToKeepUp"
+//              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+//              context:nil];
     
     
     // Notifications
@@ -88,6 +88,11 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             // 一些视频会先开始走
             if (weakSelf.status != DLPlayerStatusPause && weakSelf.status != DLPlayerStatusStop) {
                 weakSelf.status = DLPlayerStatusPlaying;
+            }
+            
+            if (weakSelf.status == DLPlayerStatusStalledStart) {
+                // 之前是卡顿的状态, 回到正常的播放了，那这属于继续播放
+                weakSelf.status = DLPlayerStatusStalledEnd;
             }
             [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
         }
@@ -182,16 +187,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             }
         }
     }
-    else if ([keyPath isEqualToString:@"player.currentItem.playbackBufferEmpty"])
-    {
-        NSLog(@"player.currentItem.playbackBufferEmpty = %@", change);
-    }
-    else if ([keyPath isEqualToString:@"player.currentItem.playbackLikelyToKeepUp"])
-    {
-        NSLog(@"player.currentItem.playbackLikelyToKeepUp = %@", change);
-    }
-    
-    
+//    else if ([keyPath isEqualToString:@"player.currentItem.playbackBufferEmpty"])
+//    {
+//        NSLog(@"player.currentItem.playbackBufferEmpty = %@", change);
+//    }
+//    else if ([keyPath isEqualToString:@"player.currentItem.playbackLikelyToKeepUp"])
+//    {
+//        NSLog(@"player.currentItem.playbackLikelyToKeepUp = %@", change);
+//    }
 }
 
 #pragma mark - Selector
@@ -207,13 +210,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)didReceiveAVPlayerItemPlaybackStalledNotification
 {
-    NSLog(@"didReceiveAVPlayerItemPlaybackStalledNotification");
+    self.status = DLPlayerStatusStalledStart;
+//    NSLog(@"didReceiveAVPlayerItemPlaybackStalledNotification");
 }
 
-- (void)didReceiveAVPlayerItemNewAccessLogEntryNotification
-{
-    NSLog(@"didReceiveAVPlayerItemNewAccessLogEntryNotification");
-}
+//- (void)didReceiveAVPlayerItemNewAccessLogEntryNotification
+//{
+//    NSLog(@"didReceiveAVPlayerItemNewAccessLogEntryNotification");
+//}
 
 - (void)dealloc
 {
