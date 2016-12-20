@@ -75,10 +75,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     
     
     // Notifications
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemPlaybackStalledNotification) name:AVPlayerItemPlaybackStalledNotification object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemNewAccessLogEntryNotification) name:AVPlayerItemNewAccessLogEntryNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemNewAccessLogEntryNotification) name:AVPlayerItemNewAccessLogEntryNotification object:nil];
 
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
@@ -198,8 +198,13 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 }
 
 #pragma mark - Selector
-- (void)didReceiveAVPlayerItemDidPlayToEndTimeNotification
+- (void)didReceiveAVPlayerItemDidPlayToEndTimeNotification:(NSNotification *)notification
 {
+    AVPlayerItem *item = notification.object;
+    if (self.currentAsset != item.asset) {
+        return;
+    }
+    
     // 播放完毕
     BOOL seekToStart = NO;
     if ([self.delegate respondsToSelector:@selector(shouldSeekToStartWhenPlayToEndTimeOfPlayerView:)]) {

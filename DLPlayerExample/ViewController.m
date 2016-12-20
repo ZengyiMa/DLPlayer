@@ -34,9 +34,9 @@
                        @(DLPlayerStatusStalledEnd):@"卡顿结束",
                        };
     
-//    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
     
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES];
+//    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES];
 }
 
 
