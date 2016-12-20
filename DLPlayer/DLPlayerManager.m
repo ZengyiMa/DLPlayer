@@ -54,7 +54,7 @@
 - (NSURL *)videoUrlWithPlayUrl:(NSURL *)playUrl cache:(BOOL)cache
 {
     if (cache) {
-        return nil;
+        return [self.loader videoUrlWithPlayUrl:playUrl];
     }
     return playUrl;
 }

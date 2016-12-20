@@ -12,6 +12,7 @@
 #define kFMLMediaFolder @"com.famulei.media.cache"
 @interface DLPlayerAVAssetResourceLoader : NSObject<AVAssetResourceLoaderDelegate, NSURLSessionDataDelegate>
 
+
 - (NSURL *)videoUrlWithPlayUrl:(NSURL *)url;
 
 @end

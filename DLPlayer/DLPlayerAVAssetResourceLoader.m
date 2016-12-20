@@ -7,26 +7,33 @@
 //
 
 #import "DLPlayerAVAssetResourceLoader.h"
-
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CommonCrypto/CommonDigest.h>
+
+
+
+
+NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
+
+
+
+
+
 @interface DLPlayerAVAssetResourceLoader()
-@property (nonatomic, strong) NSMutableArray *requests;
-@property (nonatomic, assign) NSUInteger downloadedOffset;
-@property (nonatomic, strong) NSString *mimeType;
-@property (nonatomic, assign) NSUInteger contentLength;
-@property (nonatomic, strong) NSURLSessionDataTask *dataTask;
 @property (nonatomic, strong) NSURLSessionConfiguration *config;
 @property (nonatomic, strong) NSURLSession *session;
-@property (nonatomic, assign) long long offset;
-@property (nonatomic, assign) BOOL isStart;
-@property (nonatomic, strong) NSURL *originURL;
 
 @property (nonatomic, strong) NSFileHandle *fileHandle;
 @property (nonatomic, strong) NSString *md5Key;
 @property (nonatomic, strong) NSString *tempFilePath;
 @property (nonatomic, strong) NSString *cacheFilePath;
 @property (nonatomic, strong) NSDictionary *fakeSchemeDictionary;
+
+@property (nonatomic, strong) NSMutableDictionary *requestDictionary;
+
+@property (nonatomic, strong) NSMutableData *videoData;
+@property (nonatomic, strong) NSString *videoUrl;
+
 @end
 
 @implementation DLPlayerAVAssetResourceLoader
@@ -36,16 +43,17 @@
 {
     self = [super init];
     if (self) {
-        [self initialize];
+        self.requestDictionary = [NSMutableDictionary dictionary];
+        self.config = [NSURLSessionConfiguration defaultSessionConfiguration];
+        self.videoData = [NSMutableData data];
+//        self.session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        self.session = [NSURLSession sessionWithConfiguration:self.config delegate:self delegateQueue:[NSOperationQueue mainQueue]];
     }
     return self;
 }
 
 - (void)initialize
 {
-    self.requests = [NSMutableArray array];
-    self.fakeSchemeDictionary = @{@"http":@"fakeHttp",
-                                  @"https" : @"fakeHttps"};
 }
 
 
@@ -54,139 +62,178 @@
 - (NSURL *)videoUrlWithPlayUrl:(NSURL *)url
 {
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    components.scheme = self.fakeSchemeDictionary[components.scheme];
+    components.scheme = [NSString stringWithFormat:@"%@-%@", DLPlayerAVAssetResourceLoaderPrefix, components.scheme];
     return [components URL];
 }
 
-
-
-
-
-
-
-- (void)setOriginURL:(NSURL *)originURL pathExtension:(NSString *)pathExtension;
-{
-    _originURL = originURL;
-    [self restoreState];
-    self.md5Key = [DLPlayerAVAssetResourceLoader md5StringFromString:_originURL.absoluteString];
-    self.tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[self.md5Key stringByAppendingPathExtension:pathExtension]];
-    self.cacheFilePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject stringByAppendingPathComponent:kFMLMediaFolder] stringByAppendingPathComponent:[self.md5Key stringByAppendingPathExtension:pathExtension]];
-    [self prepareCache];
-}
-
-- (NSURL *)schemeVideoURL:(NSURL *)url
-{
-    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    components.scheme = self.fakeSchemeDictionary[components.scheme];
-    return [components URL];
-}
-
-- (void)restoreState
-{
-    ///重置状态，准备开始新的
-    self.isStart = NO;
-    [self.dataTask cancel];
-    self.dataTask = nil;
-    self.downloadedOffset = 0;
-    if (self.fileHandle) {
-        [self.fileHandle closeFile];
-        self.fileHandle = nil;
-    }
-}
 
 #pragma mark - private
 
 - (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest
 {
-    [self.requests removeObject:resourceLoader];
+    NSLog(@"didCancelLoadingRequest");
+    //[self.requests removeObject:resourceLoader];
 }
 
 
 -(BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
 {
-    if (!self.originURL) {
-        return YES;
+    NSLog(@"loadingRequest = %@", loadingRequest.request.allHTTPHeaderFields);
+    NSString *requestUrlString = loadingRequest.request.URL.absoluteString;
+    if (![requestUrlString hasPrefix:DLPlayerAVAssetResourceLoaderPrefix]) {
+        return NO;
     }
     
-    if (self.isStart && loadingRequest.dataRequest.requestedOffset == 2 && loadingRequest.dataRequest.requestedLength == 2) {
+    requestUrlString = [requestUrlString substringFromIndex:DLPlayerAVAssetResourceLoaderPrefix.length + 1];
+    NSMutableDictionary *requests = self.requestDictionary[requestUrlString];
+    if (!requests) {
+        requests = [NSMutableDictionary dictionary];
+        self.requestDictionary[requestUrlString] = requests;
     }
-    else
-    {
-        ///只添加一次
-        [self.requests addObject:loadingRequest];
-    }
+    self.videoUrl = requestUrlString;
+   
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:requestUrlString]];
+    request.allHTTPHeaderFields = loadingRequest.request.allHTTPHeaderFields;
     
-    if (self.downloadedOffset > 0) {
-        [self processRequests];
-    }
     
-    if (!self.dataTask) {
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:self.originURL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:20.0];
-        self.config = [NSURLSessionConfiguration defaultSessionConfiguration];
-        self.session = [NSURLSession sessionWithConfiguration:self.config delegate:self delegateQueue:[NSOperationQueue mainQueue]];
-        self.dataTask = [self.session dataTaskWithRequest:request];
-        [self.dataTask resume];
-    }
+    
+    NSURLSessionDataTask *requestDataTask = [self.session dataTaskWithRequest:request];
+//    NSURLSessionDataTask *requestDataTask = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+//        
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
+//            
+//            NSDictionary *fields = httpResp.allHeaderFields;
+//            
+//            NSDictionary *dic = self.requestDictionary[request.URL.absoluteString];
+//            
+//            NSString *contentRange = [fields valueForKey:@"Content-Range"];
+//            NSArray *array = [contentRange componentsSeparatedByString:@"/"];
+//            NSString *length = array.lastObject;
+//            NSUInteger contentLength = 0;
+//            if ([length integerValue] == 0) {
+//                contentLength = (NSUInteger)httpResp.expectedContentLength;
+//            } else {
+//                contentLength = [length integerValue];
+//            }
+//            
+//            
+//            AVAssetResourceLoadingRequest *playerLoadingRequest = dic[[request valueForHTTPHeaderField:@"DLPlayerTaskID"]];
+//            NSString *mimeType = fields[@"Content-Type"];
+//            CFStringRef contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (__bridge CFStringRef)(mimeType), NULL);
+//            playerLoadingRequest.contentInformationRequest.byteRangeAccessSupported = YES;
+//            playerLoadingRequest.contentInformationRequest.contentType = CFBridgingRelease(contentType);
+//            playerLoadingRequest.contentInformationRequest.contentLength = contentLength;
+//            [playerLoadingRequest.dataRequest respondWithData:data];
+//            [playerLoadingRequest finishLoading];
+//
+//        });
+//    }];
+    
+    [request setValue:@(requestDataTask.taskIdentifier).stringValue forHTTPHeaderField:@"DLPlayerTaskID"];
+    requests[[NSString stringWithFormat:@"%lu", (unsigned long)requestDataTask.taskIdentifier]] = loadingRequest;
+    [requestDataTask resume];
     return YES;
+}
+
+- (void)fillRequest
+{
+    NSDictionary *videoUrldic = self.requestDictionary[self.videoUrl];
+    
+    for (AVAssetResourceLoadingRequest *loadRequest in videoUrldic.allValues) {
+        
+        long long startOffset = loadRequest.dataRequest.requestedOffset;
+        if (loadRequest.dataRequest.currentOffset != 0) {
+            startOffset = loadRequest.dataRequest.currentOffset;
+        }
+        
+        long long endOffset = startOffset + loadRequest.dataRequest.requestedLength;
+        
+        [loadRequest.dataRequest respondWithData:[self.videoData subdataWithRange:NSMakeRange(startOffset, loadRequest.dataRequest.requestedLength)]];
+
+//        if (endOffset <= self.videoData.length) {
+//            // 满足的request
+//            NSLog(@"loadRequest");
+//            [loadRequest.dataRequest respondWithData:[self.videoData subdataWithRange:NSMakeRange(startOffset, loadRequest.dataRequest.requestedLength)]];
+//            [loadRequest finishLoading];
+//        }
+        
+        
+      
+        
+        
+        
+        
+    }
+    
+   
 }
 
 
 - (void)processRequests
 {
-    NSMutableArray *completedRequests = [NSMutableArray array];
-    for (AVAssetResourceLoadingRequest *loadingRequest in self.requests)
-    {
-        ///填充头部
-        NSString *mimeType = self.mimeType;
-        CFStringRef contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (__bridge CFStringRef)(mimeType), NULL);
-        loadingRequest.contentInformationRequest.byteRangeAccessSupported = YES;
-        loadingRequest.contentInformationRequest.contentType = CFBridgingRelease(contentType);
-        loadingRequest.contentInformationRequest.contentLength = self.contentLength;
-        long long startOffset = loadingRequest.dataRequest.requestedOffset;
-        if (loadingRequest.dataRequest.currentOffset != 0) {
-            startOffset = loadingRequest.dataRequest.currentOffset;
-        }
-        
-        if ((self.offset +self.downloadedOffset) < startOffset)
-        {
-            continue;
-        }
-        
-        if (startOffset < self.offset) {
-            continue;
-        }
-        
-        NSData *fileData = [NSData dataWithContentsOfFile:self.tempFilePath options:NSDataReadingMappedIfSafe error:nil];
-        long long unreadBytes = self.downloadedOffset - (startOffset - self.offset);
-        long long numberOfBytesToRespondWith = MIN(loadingRequest.dataRequest.requestedLength, unreadBytes);
-        [loadingRequest.dataRequest respondWithData:[fileData subdataWithRange:NSMakeRange((NSUInteger)(startOffset - self.offset), (NSUInteger)numberOfBytesToRespondWith)]];
-        long long endOffset = loadingRequest.dataRequest.requestedLength;
-        BOOL didRespondFully = (self.offset + self.downloadedOffset) >= endOffset;
-        if (didRespondFully) {
-            [loadingRequest finishLoading];
-            [completedRequests addObject:loadingRequest];
-        }
-    }
-    [self.requests removeObjectsInArray:completedRequests];
+//    NSMutableArray *completedRequests = [NSMutableArray array];
+//    for (AVAssetResourceLoadingRequest *loadingRequest in self.requests)
+//    {
+//        ///填充头部
+//        NSString *mimeType = self.mimeType;
+//        CFStringRef contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (__bridge CFStringRef)(mimeType), NULL);
+//        loadingRequest.contentInformationRequest.byteRangeAccessSupported = YES;
+//        loadingRequest.contentInformationRequest.contentType = CFBridgingRelease(contentType);
+//        loadingRequest.contentInformationRequest.contentLength = self.contentLength;
+//        long long startOffset = loadingRequest.dataRequest.requestedOffset;
+//        if (loadingRequest.dataRequest.currentOffset != 0) {
+//            startOffset = loadingRequest.dataRequest.currentOffset;
+//        }
+//        
+//        if ((self.offset +self.downloadedOffset) < startOffset)
+//        {
+//            continue;
+//        }
+//        
+//        if (startOffset < self.offset) {
+//            continue;
+//        }
+//        
+//        NSData *fileData = [NSData dataWithContentsOfFile:self.tempFilePath options:NSDataReadingMappedIfSafe error:nil];
+//        long long unreadBytes = self.downloadedOffset - (startOffset - self.offset);
+//        long long numberOfBytesToRespondWith = MIN(loadingRequest.dataRequest.requestedLength, unreadBytes);
+//        [loadingRequest.dataRequest respondWithData:[fileData subdataWithRange:NSMakeRange((NSUInteger)(startOffset - self.offset), (NSUInteger)numberOfBytesToRespondWith)]];
+//        long long endOffset = loadingRequest.dataRequest.requestedLength;
+//        BOOL didRespondFully = (self.offset + self.downloadedOffset) >= endOffset;
+//        if (didRespondFully) {
+//            [loadingRequest finishLoading];
+//            [completedRequests addObject:loadingRequest];
+//        }
+//    }
+//    [self.requests removeObjectsInArray:completedRequests];
 }
 
 #pragma mark - NSURLSessionDataTaskDelegate
+
+
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
 didReceiveResponse:(NSURLResponse *)response
  completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler
 {
+    NSDictionary *videoUrldic = self.requestDictionary[dataTask.currentRequest.URL.absoluteString];
+    AVAssetResourceLoadingRequest *playerLoadingRequest = videoUrldic[@(dataTask.taskIdentifier).stringValue];
+    
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)dataTask.response;
     NSDictionary *dic = (NSDictionary *)[httpResponse allHeaderFields] ;
     NSString *content = [dic valueForKey:@"Content-Range"];
     NSArray *array = [content componentsSeparatedByString:@"/"];
     NSString *length = array.lastObject;
     if ([length integerValue] == 0) {
-        self.contentLength = (NSUInteger)httpResponse.expectedContentLength;
+        playerLoadingRequest.contentInformationRequest.contentLength = httpResponse.expectedContentLength;
     } else {
-        self.contentLength = [length integerValue];
+        playerLoadingRequest.contentInformationRequest.contentLength = [length integerValue];
     }
-    self.mimeType = httpResponse.MIMEType;
+    NSString *mimeType = dic[@"Content-Type"];
+    CFStringRef contentType = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (__bridge CFStringRef)(mimeType), NULL);
+    playerLoadingRequest.contentInformationRequest.byteRangeAccessSupported = YES;
+    playerLoadingRequest.contentInformationRequest.contentType = CFBridgingRelease(contentType);
     if (completionHandler) {
         completionHandler(NSURLSessionResponseAllow);
     }
@@ -195,29 +242,14 @@ didReceiveResponse:(NSURLResponse *)response
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
-    self.downloadedOffset += data.length;
-    [self.fileHandle seekToEndOfFile];
-    [self.fileHandle writeData:data];
-    [self processRequests];
+    [self.videoData appendData:data];
+    NSLog(@"video data size = %lu", (unsigned long)self.videoData.length);
+    
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    [self processRequests];
-    [self.fileHandle closeFile];
-    if (!error) {
-        ///出错了, 不错操作
-    }
-    
-    NSError *fileError = nil;
-    if ([[NSFileManager defaultManager]moveItemAtPath:self.tempFilePath toPath:self.cacheFilePath error:&fileError]) {
-        ///移动完全
-        NSLog(@"完成 = file == %@", self.cacheFilePath);
-    }
-    else
-    {
-        NSLog(@"失败");
-    }
+   
 }
 
 #pragma mark - helper
