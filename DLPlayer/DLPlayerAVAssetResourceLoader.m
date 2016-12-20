@@ -76,7 +76,6 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 #pragma mark - private
 
-
 - (NSURLSessionDataTask *)dataTaskWithOffset:(NSUInteger)offset
 {
     if (offset == 0) {
@@ -84,8 +83,6 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
     }
     return nil;
 }
-
-
 
 - (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest
 {

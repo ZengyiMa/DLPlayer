@@ -92,7 +92,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             return ;
         }
         CGFloat second = CMTimeGetSeconds(time);
-        // 一些视频会先开始走
+        // 防止状态提前改变
         if (second > 0.1) {
             [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
             
