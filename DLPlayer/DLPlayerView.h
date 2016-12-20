@@ -52,4 +52,8 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (void)replay;
 
 
+- (void)beginSeek;
+- (void)seekToSecond:(CGFloat)second;
+- (void)endSeek;
+
 @end

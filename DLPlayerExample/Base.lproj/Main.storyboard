@@ -70,6 +70,9 @@
                                     <action selector="replay:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5mW-qf-Bb3"/>
                                 </connections>
                             </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="TGK-dT-NAd">
+                                <rect key="frame" x="14" y="541" width="347" height="31"/>
+                            </slider>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -79,12 +82,15 @@
                             <constraint firstItem="NgL-A8-PTy" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OKY-QS-gIl"/>
                             <constraint firstItem="r4Y-5y-NqQ" firstAttribute="top" secondItem="UJs-Xf-mZG" secondAttribute="bottom" constant="30" id="SjQ-ep-bZh"/>
                             <constraint firstItem="dpt-Gw-BeE" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="StY-iF-f2H"/>
+                            <constraint firstItem="TGK-dT-NAd" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="Y68-8S-Gtm"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="rJU-L6-vpl" secondAttribute="bottom" constant="20" id="bv7-LW-WU4"/>
                             <constraint firstItem="8sc-UG-0BL" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="dZ1-aP-LQe"/>
                             <constraint firstItem="r4Y-5y-NqQ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="eZG-bP-7pN"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="dpt-Gw-BeE" secondAttribute="bottom" constant="20" id="g8d-Zi-cdM"/>
+                            <constraint firstItem="TGK-dT-NAd" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="gJ7-3E-8if"/>
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="gVv-h8-WTV"/>
                             <constraint firstItem="rJU-L6-vpl" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="8" id="mE2-v6-7Um"/>
+                            <constraint firstItem="NgL-A8-PTy" firstAttribute="top" secondItem="TGK-dT-NAd" secondAttribute="bottom" constant="8" id="rw7-RM-RD6"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="top" secondItem="r4Y-5y-NqQ" secondAttribute="bottom" constant="8" id="wHD-NM-7C2"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zZK-Vv-jre"/>
                             <constraint firstItem="8sc-UG-0BL" firstAttribute="top" secondItem="NgL-A8-PTy" secondAttribute="bottom" constant="8" id="zxa-ih-uF1"/>
@@ -92,13 +98,14 @@
                     </view>
                     <connections>
                         <outlet property="playerView" destination="UJs-Xf-mZG" id="5K7-xx-jYR"/>
+                        <outlet property="slider" destination="TGK-dT-NAd" id="7rE-NR-gb2"/>
                         <outlet property="statusLabel" destination="r4Y-5y-NqQ" id="qrl-6t-xoD"/>
                         <outlet property="timeLabel" destination="hBr-j6-C2D" id="SDT-nT-KcZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-164" y="134"/>
+            <point key="canvasLocation" x="-164" y="133.5832083958021"/>
         </scene>
     </scenes>
 </document>

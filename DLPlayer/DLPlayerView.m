@@ -9,7 +9,6 @@
 #import "DLPlayerView.h"
 #import <AVFoundation/AVFoundation.h>
 
-
 static NSString *DLPlayerItemStatus = @"player.currentItem.status";
 static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
@@ -63,11 +62,11 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
               context:nil];
     
-//    [self addObserver:self
-//           forKeyPath:@"player.currentItem.playbackBufferEmpty"
-//              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-//              context:nil];
-//    
+    [self addObserver:self
+           forKeyPath:@"player.currentItem.playbackBufferEmpty"
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
+    
 //    [self addObserver:self
 //           forKeyPath:@"player.currentItem.playbackLikelyToKeepUp"
 //              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
@@ -83,18 +82,31 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
         
+        if (weakSelf.player.rate == 0) {
+            // 播放没播放,暂停的状态
+            return ;
+        }
         CGFloat second = CMTimeGetSeconds(time);
+        // 一些视频会先开始走
         if (second > 0.1) {
-            // 一些视频会先开始走
-            if (weakSelf.status != DLPlayerStatusPause && weakSelf.status != DLPlayerStatusStop) {
-                weakSelf.status = DLPlayerStatusPlaying;
+            [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
+            
+            switch (weakSelf.status) {
+                case DLPlayerStatusStalledStart:
+                    weakSelf.status = DLPlayerStatusStalledEnd;
+                    break;
+                case DLPlayerStatusSeekStart:
+                    weakSelf.status = DLPlayerStatusSeekEnd;
+                    break;
+                case DLPlayerStatusPause:
+                case DLPlayerStatusStop:
+                break;
+                default:
+                    weakSelf.status = DLPlayerStatusPlaying;
+                    break;
             }
             
-            if (weakSelf.status == DLPlayerStatusStalledStart) {
-                // 之前是卡顿的状态, 回到正常的播放了，那这属于继续播放
-                weakSelf.status = DLPlayerStatusStalledEnd;
-            }
-            [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
+            
         }
         
        
@@ -163,6 +175,29 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self resume];
 }
 
+
+- (void)beginSeek
+{
+    self.status = DLPlayerStatusSeekStart;
+    [self.player pause];
+}
+
+- (void)seekToSecond:(CGFloat)second
+{
+    if (self.status != DLPlayerStatusSeekStart) {
+        return;
+    }
+    int32_t timeScale = self.player.currentItem.asset.duration.timescale;
+    CMTime time = CMTimeMakeWithSeconds(second, timeScale);
+    [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
+}
+
+- (void)endSeek
+{
+    [self.player play];
+}
+
+
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
@@ -189,11 +224,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     }
 //    else if ([keyPath isEqualToString:@"player.currentItem.playbackBufferEmpty"])
 //    {
-//        NSLog(@"player.currentItem.playbackBufferEmpty = %@", change);
+//       
 //    }
 //    else if ([keyPath isEqualToString:@"player.currentItem.playbackLikelyToKeepUp"])
 //    {
-//        NSLog(@"player.currentItem.playbackLikelyToKeepUp = %@", change);
 //    }
 }
 
