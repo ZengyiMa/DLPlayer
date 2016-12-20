@@ -11,8 +11,6 @@
 
 
 @interface DLPlayerManager ()
-@property (nonatomic, strong) dispatch_queue_t queue;
-@property (nonatomic, strong) DLPlayerAVAssetResourceLoader *loader;
 
 @end
 
@@ -34,30 +32,11 @@
 {
     self = [super init];
     if (self) {
-        self.loader = [DLPlayerAVAssetResourceLoader new];
-        self.queue = dispatch_queue_create("com.mazengyi.playerloader", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
 
 
-- (id<AVAssetResourceLoaderDelegate,NSURLSessionDataDelegate>)assetResourceLoader
-{
-    return self.loader;
-}
-
-- (dispatch_queue_t)queue
-{
-   return _queue;
-}
-
-- (NSURL *)videoUrlWithPlayUrl:(NSURL *)playUrl cache:(BOOL)cache
-{
-    if (cache) {
-        return [self.loader videoUrlWithPlayUrl:playUrl];
-    }
-    return playUrl;
-}
 
 
 @end

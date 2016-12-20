@@ -9,6 +9,7 @@
 #import "DLPlayerView.h"
 #import <AVFoundation/AVFoundation.h>
 #import "DLPlayerManager.h"
+#import "DLPlayerAVAssetResourceLoader.h"
 
 static NSString *DLPlayerItemStatus = @"player.currentItem.status";
 static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
@@ -21,6 +22,9 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 @property (nonatomic, assign) CGFloat duration;
 @property (nonatomic, strong) id timeToken;
 @property (nonatomic, assign) BOOL autoPlay;
+
+
+@property (nonatomic, strong) DLPlayerAVAssetResourceLoader *resourceLoader;
 @end
 
 @implementation DLPlayerView
@@ -132,7 +136,16 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
     
-    self.currentAsset = [AVURLAsset assetWithURL:[[DLPlayerManager manager]videoUrlWithPlayUrl:url cache:self.enableCache]];
+    if (self.enableCache) {
+        [self.resourceLoader prepareWithPlayUrl:url];
+        self.currentAsset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
+        [self.resourceLoader start];
+    }
+    else
+    {
+        self.currentAsset = [AVURLAsset assetWithURL:url];
+    }
+    
     __weak typeof(self) weakSelf = self;
     self.status = DLPlayerStatusPrepareStart;
     [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
@@ -280,7 +293,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 {
     _currentAsset = currentAsset;
     if (self.enableCache) {
-        [_currentAsset.resourceLoader setDelegate:[DLPlayerManager manager].assetResourceLoader queue:[DLPlayerManager manager].queue];
+        [_currentAsset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
     }
 }
 
@@ -303,6 +316,15 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     if ([self.delegate respondsToSelector:@selector(playerView:didPlayToSecond:)]) {
         [self.delegate playerView:self didPlayToSecond:second];
     }
+}
+
+
+- (DLPlayerAVAssetResourceLoader *)resourceLoader
+{
+    if (!_resourceLoader) {
+        _resourceLoader = [DLPlayerAVAssetResourceLoader new];
+    }
+    return _resourceLoader;
 }
 
 

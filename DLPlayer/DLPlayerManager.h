@@ -15,11 +15,4 @@
 
 + (instancetype)manager;
 
-- (id<AVAssetResourceLoaderDelegate, NSURLSessionDataDelegate>)assetResourceLoader;
-- (dispatch_queue_t)queue;
-
-
-- (NSURL *)videoUrlWithPlayUrl:(NSURL *)playUrl cache:(BOOL)cache;
-
-
 @end
