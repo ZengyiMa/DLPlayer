@@ -92,9 +92,10 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 -(BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
 {
-    loadingRequest.contentInformationRequest.byteRangeAccessSupported = YES;
+    
+    NSLog(@"start request = %@", loadingRequest.dataRequest);
     [self.loadingRequests addObject:loadingRequest];
-    [self fillRequest];
+//    [self fillRequest];
     return YES;
 }
 
@@ -103,30 +104,51 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 {
     NSUInteger downloadedBytes = self.videoData.length;
     NSMutableArray *removeRequests = [NSMutableArray array];
+    
     for (AVAssetResourceLoadingRequest *loadingRequest in self.loadingRequests) {
         
         loadingRequest.contentInformationRequest.contentType = self.contentType;
         loadingRequest.contentInformationRequest.contentLength = self.contentLength;
+        loadingRequest.contentInformationRequest.byteRangeAccessSupported = YES;
         
+
         NSUInteger startOffset = loadingRequest.dataRequest.requestedOffset;
-        
         if (loadingRequest.dataRequest.currentOffset != 0) {
             startOffset = loadingRequest.dataRequest.currentOffset;
         }
-        
-        if (startOffset < downloadedBytes) {
-           
-            if (startOffset + loadingRequest.dataRequest.requestedLength < downloadedBytes) {
-                // 这个request 完全加载完成了
-               
-                [loadingRequest.dataRequest respondWithData: [self.videoData subdataWithRange:NSMakeRange(startOffset, loadingRequest.dataRequest.requestedLength)]];
-                [loadingRequest finishLoading];
-                [removeRequests addObject:loadingRequest];
-            }
-            else{
-                [loadingRequest.dataRequest respondWithData:[self.videoData subdataWithRange:NSMakeRange(startOffset, downloadedBytes - startOffset)]];
-            }
+        if (downloadedBytes < startOffset){
+            continue;
         }
+        
+        NSUInteger unreadBytes = downloadedBytes - ((NSInteger)startOffset);
+        NSUInteger numberOfBytesToRespondWith = MIN((NSUInteger)loadingRequest.dataRequest.requestedLength, unreadBytes);
+        [loadingRequest.dataRequest respondWithData:[self.videoData subdataWithRange:NSMakeRange((NSUInteger)startOffset, (NSUInteger)numberOfBytesToRespondWith)]];
+
+        long long endOffset = loadingRequest.dataRequest.requestedOffset + loadingRequest.dataRequest.requestedLength;
+        BOOL didRespondFully = (downloadedBytes) >= endOffset;
+
+
+        if (didRespondFully) {
+            NSLog(@"finsh request = %@", loadingRequest.dataRequest);
+            [loadingRequest finishLoading];
+            [removeRequests addObject:loadingRequest];
+        }
+//        if (startOffset < downloadedBytes) {
+//           
+//            if (startOffset + loadingRequest.dataRequest.requestedLength < downloadedBytes) {
+//                // 这个request 完全加载完成了
+//               
+//                [loadingRequest.dataRequest respondWithData: [self.videoData subdataWithRange:NSMakeRange(startOffset, loadingRequest.dataRequest.requestedLength)]];
+//                [loadingRequest finishLoading];
+//                [removeRequests addObject:loadingRequest];
+//            }
+//            else{
+//                NSLog(@"request length = %ld, request offset = %lld", loadingRequest.dataRequest.requestedLength, loadingRequest.dataRequest.currentOffset);
+//                [loadingRequest.dataRequest respondWithData:[self.videoData subdataWithRange:NSMakeRange(loadingRequest.dataRequest.requestedOffset, downloadedBytes - loadingRequest.dataRequest.requestedOffset)]];
+//            }
+//        }
+        
+
     }
     
     [self.loadingRequests removeObjectsInArray:removeRequests];
@@ -166,7 +188,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
     [self.videoData appendData:data];
-    NSLog(@"down data size = %lu", (unsigned long)self.videoData.length);
+    NSLog(@"download offset = %lu", self.videoData.length);
     [self fillRequest];
 }
 

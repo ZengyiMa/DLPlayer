@@ -238,7 +238,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
                 [self.player play];
             }
         }
-        else
+        else if(status == AVPlayerStatusFailed)
         {
             self.status = DLPlayerStatusFailed;
         }

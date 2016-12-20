@@ -30,7 +30,7 @@
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpInside];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpOutside];
 
-    self.playerView.enableCache = YES;
+//    self.playerView.enableCache = YES;
     self.playerView.delegate = self;
     self.statusDic = @{@(DLPlayerStatusPrepareStart):@"准备开始",
                        @(DLPlayerStatusPrepareEnd):@"准备结束",
@@ -42,11 +42,15 @@
                        @(DLPlayerStatusSeekEnd):@"结束拖动",
                        @(DLPlayerStatusStalledStart):@"卡顿开始",
                        @(DLPlayerStatusStalledEnd):@"卡顿结束",
+                       @(DLPlayerStatusPrepareIdle):@"默认状态",
+                       @(DLPlayerStatusFailed):@"错误",
+
+
                        };
     
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
+//    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
     
-//    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES];
 }
 
 
