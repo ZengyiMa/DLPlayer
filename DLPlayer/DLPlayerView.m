@@ -8,6 +8,7 @@
 
 #import "DLPlayerView.h"
 #import <AVFoundation/AVFoundation.h>
+#import "DLPlayerManager.h"
 
 static NSString *DLPlayerItemStatus = @"player.currentItem.status";
 static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
@@ -16,7 +17,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, assign) DLPlayerStatus status;
-@property (nonatomic, strong) AVAsset *currentAsset;
+@property (nonatomic, strong) AVURLAsset *currentAsset;
 @property (nonatomic, assign) CGFloat duration;
 @property (nonatomic, strong) id timeToken;
 @property (nonatomic, assign) BOOL autoPlay;
@@ -62,10 +63,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
               context:nil];
     
-    [self addObserver:self
-           forKeyPath:@"player.currentItem.playbackBufferEmpty"
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
+//    [self addObserver:self
+//           forKeyPath:@"player.currentItem.playbackBufferEmpty"
+//              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+//              context:nil];
     
 //    [self addObserver:self
 //           forKeyPath:@"player.currentItem.playbackLikelyToKeepUp"
@@ -105,12 +106,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
                     weakSelf.status = DLPlayerStatusPlaying;
                     break;
             }
-            
-            
         }
-        
-       
     }];
+    
+    
+    
+    
+    
+    
 }
 
 
@@ -128,7 +131,8 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     if (self.currentAsset) {
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
-    self.currentAsset = [AVAsset assetWithURL:url];
+    
+    self.currentAsset = [AVURLAsset assetWithURL:[[DLPlayerManager manager]videoUrlWithPlayUrl:url cache:self.enableCache]];
     __weak typeof(self) weakSelf = self;
     self.status = DLPlayerStatusPrepareStart;
     [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
@@ -271,6 +275,17 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 }
 
 #pragma mark - seter
+
+- (void)setCurrentAsset:(AVURLAsset *)currentAsset
+{
+    _currentAsset = currentAsset;
+    if (self.enableCache) {
+        [_currentAsset.resourceLoader setDelegate:[DLPlayerManager manager].assetResourceLoader queue:[DLPlayerManager manager].queue];
+    }
+}
+
+
+
 - (void)setStatus:(DLPlayerStatus)status
 {
     if (_status == status) {

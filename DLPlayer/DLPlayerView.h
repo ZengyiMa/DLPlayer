@@ -13,7 +13,6 @@
 
 typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
     DLPlayerStatusPrepareIdle,
-    
     DLPlayerStatusPrepareStart,
     DLPlayerStatusPrepareEnd,
     DLPlayerStatusReadyToPlay,
@@ -38,22 +37,38 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 
 
 
+@protocol DLPlayerManagerDelegate <NSObject>
+@optional
+- (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status;
+- (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second;
+- (BOOL)shouldSeekToStartWhenPlayToEndTimeOfPlayerView:(DLPlayerView *)playerView;
+@end
+
+
+
+
+
 @interface DLPlayerView : UIView
+
+@property (nonatomic, assign) BOOL enableCache;
+
+
+@property (nonatomic, weak) id<DLPlayerDelegate> delegate;
+
 
 @property (nonatomic, assign, readonly) DLPlayerStatus status;
 @property (nonatomic, assign, readonly) CGFloat duration;
 
-@property (nonatomic, weak) id<DLPlayerDelegate> delegate;
 
+#pragma mark - play
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay;
-
 - (void)resume;
 - (void)pause;
 - (void)stop;
 - (void)stopWithSeekToStart:(BOOL)seekToStart;
 - (void)replay;
 
-
+#pragma mark - seek
 - (void)beginSeek;
 - (void)seekToSecond:(CGFloat)second;
 - (void)endSeek;
