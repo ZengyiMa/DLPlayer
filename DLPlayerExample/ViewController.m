@@ -15,6 +15,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *timeLabel;
 @property (nonatomic, strong) NSDictionary *statusDic;
 @property (strong, nonatomic) IBOutlet UISlider *slider;
+@property (strong, nonatomic) IBOutlet DLPlayerView *player2;
 @end
 
 @implementation ViewController
@@ -23,6 +24,10 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    
+    self.player2.delegate = self;
+    
+    self.player2.hidden = YES;
     self.slider.value = 0;
     [self.slider addTarget:self action:@selector(slideValueChange) forControlEvents:UIControlEventValueChanged];
     [self.slider addTarget:self action:@selector(beginSeek) forControlEvents:UIControlEventTouchDown];
@@ -30,7 +35,7 @@
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpInside];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpOutside];
 
-    self.playerView.enableCache = YES;
+//    self.playerView.enableCache = YES;
     self.playerView.delegate = self;
     self.statusDic = @{@(DLPlayerStatusPrepareStart):@"准备开始",
                        @(DLPlayerStatusPrepareEnd):@"准备结束",
@@ -45,12 +50,9 @@
                        @(DLPlayerStatusPrepareIdle):@"默认状态",
                        @(DLPlayerStatusFailed):@"错误",
                        };
-    
-//    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
-    
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
+//    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:10];
 }
-
 
 - (IBAction)statr:(id)sender {
     [self.playerView resume];
@@ -79,6 +81,10 @@
 {
     [self.playerView seekToSecond:self.slider.value];
 }
+- (IBAction)player2Show:(id)sender {
+    [self.player2 playWithURLAsset:self.playerView.currentAsset autoPlay:YES intialSecond:self.playerView.currentSecond];
+}
+
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
 {
@@ -88,6 +94,16 @@
 
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status
 {
+    if (self.player2 == playerView) {
+        if (status == DLPlayerStatusPlaying) {
+            self.player2.hidden = NO;
+            [self.playerView pause];
+        }
+        
+        return;
+    }
+    
+    
     if (status == DLPlayerStatusReadyToPlay) {
         self.slider.maximumValue = self.playerView.duration;
     }

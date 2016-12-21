@@ -35,13 +35,22 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (BOOL)shouldSeekToStartWhenPlayToEndTimeOfPlayerView:(DLPlayerView *)playerView;
 @end
 
+
 @interface DLPlayerView : UIView
 @property (nonatomic, assign) BOOL enableCache;
 @property (nonatomic, weak) id<DLPlayerDelegate> delegate;
 @property (nonatomic, assign, readonly) DLPlayerStatus status;
 @property (nonatomic, assign, readonly) CGFloat duration;
+@property (nonatomic, assign, readonly) CGFloat currentSecond;
+@property (nonatomic, strong, readonly) AVURLAsset *currentAsset;
+
 #pragma mark - play
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay;
+- (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay intialSecond:(CGFloat)second;
+- (void)playWithURLAsset:(AVURLAsset *)asset autoPlay:(BOOL)autoPlay;
+- (void)playWithURLAsset:(AVURLAsset *)asset autoPlay:(BOOL)autoPlay intialSecond:(CGFloat)second;
+
+#pragma mark - control
 - (void)resume;
 - (void)pause;
 - (void)stop;
@@ -51,5 +60,8 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (void)beginSeek;
 - (void)seekToSecond:(CGFloat)second;
 - (void)endSeek;
+#pragma mark - tools
++ (UIImage *)imageFromAVAsset:(AVAsset *)avasset atTime:(CMTime)time;
+
 
 @end
