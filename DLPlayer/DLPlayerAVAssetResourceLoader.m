@@ -9,7 +9,7 @@
 #import "DLPlayerAVAssetResourceLoader.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <CommonCrypto/CommonDigest.h>
-
+#include <mach/mach.h>
 
 NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
@@ -27,6 +27,11 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 @property (nonatomic, strong) NSURLSessionDataTask *currentDataTask;
 
+
+// cache
+@property (nonatomic, strong) NSFileHandle *fileHandler;
+@property (nonatomic, strong) NSString *cacheFileName;
+
 @end
 
 @implementation DLPlayerAVAssetResourceLoader
@@ -43,19 +48,22 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
     return self;
 }
 
-- (void)initialize
-{
-}
+
+
 
 
 #pragma mark - public
 
 - (void)prepareWithPlayUrl:(NSURL *)url
 {
+    self.cacheFileName = [DLPlayerAVAssetResourceLoader md5StringFromString:url.absoluteString];
+    
+    
     self.originMediaUrl = url;
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
     components.scheme = [NSString stringWithFormat:@"%@-%@", DLPlayerAVAssetResourceLoaderPrefix, components.scheme];
     self.mediaUrl = [components URL];
+    
 }
 
 - (void)start
@@ -182,7 +190,19 @@ didReceiveResponse:(NSURLResponse *)response
         } else {
             self.contentLength = [contentLength longLongValue];
         }
+        
+        
+        if (self.contentLength > [DLPlayerAVAssetResourceLoader diskSpaceFree]) {
+            if ([self.delegate respondsToSelector:@selector(storageSpaceNotEnoughOfResourceLoader:)]) {
+                [self.delegate storageSpaceNotEnoughOfResourceLoader:self];
+                if (completionHandler) {
+                    completionHandler(NSURLSessionResponseCancel);
+                }
+                return;
+            }
+        }
     }
+
     if (completionHandler) {
         completionHandler(NSURLSessionResponseAllow);
     }
@@ -206,7 +226,6 @@ didReceiveResponse:(NSURLResponse *)response
     if(string == nil || [string length] == 0)
         return nil;
     const char *value = [string UTF8String];
-    
     unsigned char outputBuffer[CC_MD5_DIGEST_LENGTH];
     CC_MD5(value, (CC_LONG)strlen(value), outputBuffer);
     
@@ -214,8 +233,17 @@ didReceiveResponse:(NSURLResponse *)response
     for(NSInteger count = 0; count < CC_MD5_DIGEST_LENGTH; count++){
         [outputString appendFormat:@"%02x",outputBuffer[count]];
     }
-    
     return outputString;
+}
+
+
++ (int64_t)diskSpaceFree {
+    NSError *error = nil;
+    NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfFileSystemForPath:NSHomeDirectory() error:&error];
+    if (error) return -1;
+    int64_t space =  [[attrs objectForKey:NSFileSystemFreeSize] longLongValue];
+    if (space < 0) space = -1;
+    return space;
 }
 
 @end

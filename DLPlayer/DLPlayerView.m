@@ -14,7 +14,7 @@
 static NSString *DLPlayerItemStatus = @"player.currentItem.status";
 static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
-@interface DLPlayerView ()
+@interface DLPlayerView () <DLPlayerAVAssetResourceLoaderDelegate>
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, assign) DLPlayerStatus status;
@@ -131,12 +131,21 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay
 {
+    [self playWithURL:url autoPlay:autoPlay enableCache:self.enableCache];
+}
+
+
+- (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay enableCache:(BOOL)enableCache
+{
+    
+    
     self.autoPlay = autoPlay;
     if (self.currentAsset) {
+        [self.player pause];
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
     
-    if (self.enableCache) {
+    if (enableCache) {
         [self.resourceLoader prepareWithPlayUrl:url];
         self.currentAsset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
         [self.resourceLoader start];
@@ -158,7 +167,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             }
         });
     }];
+
 }
+
+
 
 - (void)resume
 {
@@ -274,10 +286,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 //    NSLog(@"didReceiveAVPlayerItemPlaybackStalledNotification");
 }
 
-//- (void)didReceiveAVPlayerItemNewAccessLogEntryNotification
-//{
-//    NSLog(@"didReceiveAVPlayerItemNewAccessLogEntryNotification");
-//}
 
 - (void)dealloc
 {
@@ -286,6 +294,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self.player removeTimeObserver:self.timeToken];
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
+
+#pragma mark - delegate
+- (void)storageSpaceNotEnoughOfResourceLoader:(DLPlayerAVAssetResourceLoader *)resourceLoader
+{
+    // 缓存空间不足，用 AVPlayer 自己的策略
+    [self playWithURL:self.resourceLoader.originMediaUrl autoPlay:self.autoPlay enableCache:NO];
+}
+
 
 #pragma mark - seter
 
@@ -323,6 +339,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 {
     if (!_resourceLoader) {
         _resourceLoader = [DLPlayerAVAssetResourceLoader new];
+        _resourceLoader.delegate = self;
     }
     return _resourceLoader;
 }
