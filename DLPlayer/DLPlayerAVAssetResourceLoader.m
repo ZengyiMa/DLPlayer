@@ -95,7 +95,7 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
     
     NSLog(@"start request = %@", loadingRequest.dataRequest);
     [self.loadingRequests addObject:loadingRequest];
-//    [self fillRequest];
+    [self fillRequest];
     return YES;
 }
 
