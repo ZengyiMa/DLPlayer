@@ -18,16 +18,14 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 @property (nonatomic, strong) NSURLSessionConfiguration *sessionConfiguration;
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, strong) NSMutableArray *loadingRequests;
-
 @property (nonatomic, strong) NSMutableData *videoData;
-
 @property (nonatomic, strong) NSURL *originMediaUrl;
 @property (nonatomic, strong) NSURL *mediaUrl;
-
 @property (nonatomic, assign) BOOL isStart;
-
 @property (nonatomic, copy) NSString *contentType;
 @property (nonatomic, assign) NSUInteger contentLength;
+
+@property (nonatomic, strong) NSURLSessionDataTask *currentDataTask;
 
 @end
 
@@ -62,16 +60,23 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 - (void)start
 {
-    [[self dataTaskWithOffset:0] resume];
+    if (self.isStart) {
+        return;
+    }
+    
+    self.isStart = YES;
+    self.currentDataTask = [self dataTaskWithOffset:0];
+    [self.currentDataTask resume];
 }
 
 - (void)stop
 {
-    
+    self.isStart = NO;
+    if (self.currentDataTask) {
+        [self.currentDataTask cancel];
+        self.currentDataTask = nil;
+    }
 }
-
-
-
 
 
 #pragma mark - private
@@ -92,8 +97,6 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 -(BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
 {
-    
-    NSLog(@"start request = %@", loadingRequest.dataRequest);
     [self.loadingRequests addObject:loadingRequest];
     [self fillRequest];
     return YES;
@@ -129,7 +132,6 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 
         if (didRespondFully) {
-            NSLog(@"finsh request = %@", loadingRequest.dataRequest);
             [loadingRequest finishLoading];
             [removeRequests addObject:loadingRequest];
         }
@@ -190,7 +192,7 @@ didReceiveResponse:(NSURLResponse *)response
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data
 {
     [self.videoData appendData:data];
-    NSLog(@"download offset = %lu", self.videoData.length);
+//    NSLog(@"download offset = %lu", self.videoData.length);
     [self fillRequest];
 }
 
