@@ -96,6 +96,7 @@
 {
     if (self.player2 == playerView) {
         if (status == DLPlayerStatusPlaying) {
+            [self.player2 seekToSecond:self.playerView.currentSecond];
             self.player2.hidden = NO;
             [self.playerView pause];
         }
