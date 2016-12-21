@@ -242,6 +242,13 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self.player play];
 }
 
+- (void)forceSeekToSecond:(CGFloat)second
+{
+    int32_t timeScale = self.player.currentItem.asset.duration.timescale;
+    CMTime time = CMTimeMakeWithSeconds(second, timeScale);
+    [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
+}
+
 
 #pragma mark - KVO
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context

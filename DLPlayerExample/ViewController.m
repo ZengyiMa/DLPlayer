@@ -82,9 +82,10 @@
     [self.playerView seekToSecond:self.slider.value];
 }
 - (IBAction)player2Show:(id)sender {
+    self.player2.hidden = NO;
     [self.player2 playWithURLAsset:self.playerView.currentAsset autoPlay:YES intialSecond:self.playerView.currentSecond];
+        [self.playerView pause];
 }
-
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
 {
@@ -96,11 +97,7 @@
 {
     if (self.player2 == playerView) {
         if (status == DLPlayerStatusPlaying) {
-            [self.player2 seekToSecond:self.playerView.currentSecond];
-            self.player2.hidden = NO;
-            [self.playerView pause];
         }
-        
         return;
     }
     
