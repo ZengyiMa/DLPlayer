@@ -49,7 +49,7 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
         self.videoData = [NSMutableData data];
         self.session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
         self.loadingRequests = [NSMutableArray array];
-        self.threshold = 5 * 1024 * 1024 // 5MB
+        self.threshold = 5 * 1024 * 1024; // 5MB
     }
     return self;
 }
@@ -60,9 +60,8 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 - (void)prepareWithPlayUrl:(NSURL *)url
 {
-    self prepareWithPlayUrl:url threshold:<#(NSUInteger)#>
+    [self prepareWithPlayUrl:url threshold:self.threshold];
 }
-
 
 
 - (void)prepareWithPlayUrl:(NSURL *)url threshold:(NSUInteger)bytes
