@@ -17,7 +17,11 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 @property (nonatomic, strong) NSURLSessionConfiguration *sessionConfiguration;
 @property (nonatomic, strong) NSURLSession *session;
+@property (nonatomic, strong) NSURLSessionDataTask *currentDataTask;
+
+
 @property (nonatomic, strong) NSMutableArray *loadingRequests;
+
 @property (nonatomic, strong) NSMutableData *videoData;
 @property (nonatomic, strong) NSURL *originMediaUrl;
 @property (nonatomic, strong) NSURL *mediaUrl;
@@ -25,8 +29,9 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 @property (nonatomic, copy) NSString *contentType;
 @property (nonatomic, assign) NSUInteger contentLength;
 
-@property (nonatomic, strong) NSURLSessionDataTask *currentDataTask;
-
+@property (nonatomic, assign) NSUInteger threshold;
+// reqeust
+@property (nonatomic, assign) NSUInteger requestOffset;
 
 // cache
 @property (nonatomic, strong) NSFileHandle *fileHandler;
@@ -44,21 +49,25 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
         self.videoData = [NSMutableData data];
         self.session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
         self.loadingRequests = [NSMutableArray array];
+        self.threshold = 5 * 1024 * 1024 // 5MB
     }
     return self;
 }
 
 
-
-
-
 #pragma mark - public
+
 
 - (void)prepareWithPlayUrl:(NSURL *)url
 {
+    self prepareWithPlayUrl:url threshold:<#(NSUInteger)#>
+}
+
+
+
+- (void)prepareWithPlayUrl:(NSURL *)url threshold:(NSUInteger)bytes
+{
     self.cacheFileName = [DLPlayerAVAssetResourceLoader md5StringFromString:url.absoluteString];
-    
-    
     self.originMediaUrl = url;
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
     components.scheme = [NSString stringWithFormat:@"%@-%@", DLPlayerAVAssetResourceLoaderPrefix, components.scheme];
@@ -71,7 +80,6 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
     if (self.isStart) {
         return;
     }
-    
     self.isStart = YES;
     self.currentDataTask = [self dataTaskWithOffset:0];
     [self.currentDataTask resume];
@@ -105,6 +113,10 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 -(BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
 {
+    
+    self.requestOffset =  loadingRequest.dataRequest.requestedOffset;
+    
+    
     [self.loadingRequests addObject:loadingRequest];
     [self fillRequest];
     return YES;
@@ -190,7 +202,6 @@ didReceiveResponse:(NSURLResponse *)response
         } else {
             self.contentLength = [contentLength longLongValue];
         }
-        
         
         if (self.contentLength > [DLPlayerAVAssetResourceLoader diskSpaceFree]) {
             if ([self.delegate respondsToSelector:@selector(storageSpaceNotEnoughOfResourceLoader:)]) {

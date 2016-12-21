@@ -255,13 +255,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             self.status = DLPlayerStatusFailed;
         }
     }
-//    else if ([keyPath isEqualToString:@"player.currentItem.playbackBufferEmpty"])
-//    {
-//       
-//    }
-//    else if ([keyPath isEqualToString:@"player.currentItem.playbackLikelyToKeepUp"])
-//    {
-//    }
 }
 
 #pragma mark - Selector

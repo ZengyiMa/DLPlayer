@@ -14,8 +14,6 @@
 
 @optional
 - (void)storageSpaceNotEnoughOfResourceLoader:(DLPlayerAVAssetResourceLoader *)resourceLoader;
-
-
 @end
 
 
@@ -25,11 +23,10 @@
 @interface DLPlayerAVAssetResourceLoader : NSObject<AVAssetResourceLoaderDelegate, NSURLSessionDataDelegate>
 @property (nonatomic, strong, readonly) NSURL *mediaUrl;
 @property (nonatomic, strong, readonly) NSURL *originMediaUrl;
-
-
 @property (nonatomic, weak) id<DLPlayerAVAssetResourceLoaderDelegate> delegate;
 
-- (void)prepareWithPlayUrl:(NSURL *)url;
+- (void)prepareWithPlayUrl:(NSURL *)url
+- (void)prepareWithPlayUrl:(NSURL *)url threshold:(NSUInteger)bytes;
 - (void)start;
 - (void)stop;
 
