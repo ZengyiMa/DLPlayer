@@ -82,9 +82,13 @@
     [self.playerView seekToSecond:self.slider.value];
 }
 - (IBAction)player2Show:(id)sender {
-    self.player2.hidden = NO;
-    [self.player2 playWithURLAsset:self.playerView.currentAsset autoPlay:YES intialSecond:self.playerView.currentSecond];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.playerView pause];
+        self.player2.hidden = NO;
+    });
+    
+    [self.player2 playWithURLAsset:self.playerView.currentAsset autoPlay:YES intialSecond:CMTimeGetSeconds(self.playerView.currentItem.currentTime)];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second

@@ -145,14 +145,16 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         self.currentAsset = [AVURLAsset assetWithURL:url];
     }
     
+    
+   self.currentItem = [AVPlayerItem playerItemWithAsset:self.currentAsset];
+
     __weak typeof(self) weakSelf = self;
     [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
             self.status = DLPlayerStatusPrepareEnd;
             if (weakSelf.currentAsset.playable) {
                 // 可以播放了
-                AVPlayerItem *playItem = [AVPlayerItem playerItemWithAsset:weakSelf.currentAsset];
-                [weakSelf.player replaceCurrentItemWithPlayerItem:playItem];
+                [weakSelf.player replaceCurrentItemWithPlayerItem:weakSelf.currentItem];
             }
         });
     }];
@@ -184,6 +186,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         [CATransaction commit];
     }
     [self.player replaceCurrentItemWithPlayerItem:playItem];
+}
+
+- (void)playWithItem:(AVPlayerItem *)item intialSecond:(CGFloat)second
+{
+    self.autoPlay = YES;
+//    self.currentItem = item;
+    self.intialSecond = second;
+    [self.player replaceCurrentItemWithPlayerItem:item];
 }
 
 
