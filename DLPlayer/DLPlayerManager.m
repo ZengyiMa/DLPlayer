@@ -37,6 +37,12 @@
 }
 
 
+- (void)addPreloadUrl:(NSURL *)url
+{
+    
+}
+
+
 
 
 @end

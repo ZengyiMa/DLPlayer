@@ -11,10 +11,15 @@
 
 
 
-
 // 播放管理类
 @interface DLPlayerManager: NSObject
 
 + (instancetype)manager;
+
+
+- (void)addPreloadUrl:(NSURL *)url;
+
+
+
 
 @end

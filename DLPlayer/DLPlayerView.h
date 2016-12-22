@@ -99,6 +99,7 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (void)beginSeek;
 - (void)seekToSecond:(CGFloat)second;
 - (void)endSeek;
+#pragma mark - preload
 #pragma mark - tools
 + (UIImage *)imageFromAVAsset:(AVAsset *)avasset atTime:(CMTime)time;
 
