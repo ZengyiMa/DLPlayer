@@ -283,17 +283,17 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         if (status == AVPlayerStatusReadyToPlay) {
             self.status = DLPlayerStatusReadyToPlay;
             if (self.intialSecond != 0) {
-                [self.player seekToTime:CMTimeMake(self.intialSecond, self.currentItem.asset.duration.timescale) completionHandler:^(BOOL finished) {
+                int32_t timeScale = self.player.currentItem.asset.duration.timescale;
+                CMTime time = CMTimeMakeWithSeconds(self.intialSecond, timeScale);
+                [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
                     if (weakSelf.autoPlay) {
                         [weakSelf.player play];
                     }
                 }];
+                return;
             }
-            else
-            {
-                if (weakSelf.autoPlay) {
-                    [weakSelf.player play];
-                }
+            if (weakSelf.autoPlay) {
+                [weakSelf.player play];
             }
         }
         else if(status == AVPlayerStatusFailed)

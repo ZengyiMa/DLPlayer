@@ -49,7 +49,7 @@
                        @(DLPlayerStatusPrepareIdle):@"默认状态",
                        @(DLPlayerStatusFailed):@"错误",
                        };
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:5];
 //    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:10];
 }
 
@@ -81,15 +81,6 @@
     [self.playerView seekToSecond:self.slider.value];
 }
 - (IBAction)player2Show:(id)sender {
-    
-//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//        [self.playerView stop];
-//        self.player2.hidden = NO;
-//    });
-    
-    
-    
-//    [self.player2 playWithURLAsset:self.playerView.currentItem.asset autoPlay:YES intialTime:self.playerView.currentItem.currentTime];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
