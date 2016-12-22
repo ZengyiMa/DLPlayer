@@ -30,17 +30,59 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @protocol DLPlayerDelegate <NSObject>
 
 @optional
+
+/**
+ 播放器状态发生了改变，具体状态可以看 DLPlayerStatus
+
+ @param playerView 播放器对象
+ @param status     改变的状态
+ */
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status;
+
+/**
+ 播放器播放进度
+ 
+ @param playerView 播放器对象
+ @param second     播放器当前的进度
+ */
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second;
+
+/**
+ 当前播放器完全播放结束，询问是否需要 seek 到第一帧， 返回 YES 会回到第一帧
+
+ @param playerView 播放器对象
+ @return           YES or NO
+ */
 - (BOOL)shouldSeekToStartWhenPlayToEndTimeOfPlayerView:(DLPlayerView *)playerView;
 @end
 
 
 @interface DLPlayerView : UIView
+
+
+/**
+ 开启缓存，默认为 NO
+ */
 @property (nonatomic, assign) BOOL enableCache;
+
+/**
+ 回调委托
+ */
 @property (nonatomic, weak) id<DLPlayerDelegate> delegate;
+
+/**
+ 播放器当前的状态
+ */
 @property (nonatomic, assign, readonly) DLPlayerStatus status;
+
+/**
+ 但是播放的多媒体的时间长度，需要状态 DLPlayerStatusReadyToPlay 可以获取
+ */
 @property (nonatomic, assign, readonly) CGFloat duration;
+
+/**
+ 当前播放Item
+ */
 @property (nonatomic, strong, readonly) AVPlayerItem *currentItem;
 
 #pragma mark - play
