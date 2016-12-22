@@ -19,6 +19,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, assign) DLPlayerStatus status;
 @property (nonatomic, strong) AVURLAsset *currentAsset;
+@property (nonatomic, strong) AVPlayerItem *currentItem;
 @property (nonatomic, assign) CGFloat currentSecond;
 @property (nonatomic, assign) CGFloat duration;
 @property (nonatomic, strong) id timeToken;
@@ -53,29 +54,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 }
 
 
-- (void)initPlayerView
+- (void)preparePlayerWithPlayerItem:(AVPlayerItem *)item
 {
-    
-    self.player = [AVPlayer new];
+    self.player = [AVPlayer playerWithPlayerItem:item];
     self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
     [self.layer addSublayer:self.playerLayer];
+    self.playerLayer.frame = self.bounds;
     
-  
-    // KVO
-    [self addObserver:self
-           forKeyPath:DLPlayerItemStatus
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
     
-    [self addObserver:self
-           forKeyPath:DLPlayerItemDuration
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
-
-    // Notifications
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemPlaybackStalledNotification) name:AVPlayerItemPlaybackStalledNotification object:nil];
-
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
         
@@ -97,13 +83,48 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
                     break;
                 case DLPlayerStatusPause:
                 case DLPlayerStatusStop:
-                break;
+                    break;
                 default:
                     weakSelf.status = DLPlayerStatusPlaying;
                     break;
             }
         }
     }];
+
+}
+
+
+- (void)releasePlayer
+{
+    [self.playerLayer removeFromSuperlayer];
+    [self.player pause];
+    self.player = nil;
+    self.playerLayer = nil;
+    [self removeObserver:self forKeyPath:DLPlayerItemStatus];
+    [self removeObserver:self forKeyPath:DLPlayerItemDuration];
+    if (self.timeToken) {
+        [self.player removeTimeObserver:self.timeToken];
+    }
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+
+
+- (void)initPlayerView
+{
+    // KVO
+    [self addObserver:self
+           forKeyPath:DLPlayerItemStatus
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
+    
+    [self addObserver:self
+           forKeyPath:DLPlayerItemDuration
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
+
+    // Notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemPlaybackStalledNotification) name:AVPlayerItemPlaybackStalledNotification object:nil];
 }
 
 
@@ -145,16 +166,14 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         self.currentAsset = [AVURLAsset assetWithURL:url];
     }
     
-    
    self.currentItem = [AVPlayerItem playerItemWithAsset:self.currentAsset];
-
     __weak typeof(self) weakSelf = self;
     [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.status = DLPlayerStatusPrepareEnd;
             if (weakSelf.currentAsset.playable) {
                 // 可以播放了
-                [weakSelf.player replaceCurrentItemWithPlayerItem:weakSelf.currentItem];
+                [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
+                self.status = DLPlayerStatusPrepareEnd;
             }
         });
     }];
@@ -175,7 +194,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         [self.player replaceCurrentItemWithPlayerItem:nil];
     }
     self.currentAsset = asset;
-    AVPlayerItem *playItem = [AVPlayerItem playerItemWithAsset:self.currentAsset];
+    self.currentItem = [AVPlayerItem playerItemWithAsset:self.currentAsset];
     self.status = DLPlayerStatusPrepareEnd;
     
     if (self.intialSecond != 0) {
@@ -185,18 +204,8 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         self.playerLayer.hidden = YES;
         [CATransaction commit];
     }
-    [self.player replaceCurrentItemWithPlayerItem:playItem];
+    [self preparePlayerWithPlayerItem:self.currentItem];
 }
-
-- (void)playWithItem:(AVPlayerItem *)item intialSecond:(CGFloat)second
-{
-    self.autoPlay = YES;
-//    self.currentItem = item;
-    self.intialSecond = second;
-    [self.player replaceCurrentItemWithPlayerItem:item];
-}
-
-
 
 - (void)resume
 {
@@ -212,7 +221,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)stop
 {
-    [self stopWithSeekToStart:NO];
+    [self releasePlayer];
 }
 
 - (void)stopWithSeekToStart:(BOOL)seekToStart
@@ -331,10 +340,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)dealloc
 {
-    [self removeObserver:self forKeyPath:DLPlayerItemStatus];
-    [self removeObserver:self forKeyPath:DLPlayerItemDuration];
-    [self.player removeTimeObserver:self.timeToken];
-    [[NSNotificationCenter defaultCenter]removeObserver:self];
+    
 }
 
 

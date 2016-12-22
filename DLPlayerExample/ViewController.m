@@ -25,7 +25,6 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     
-    self.player2.delegate = self;
     
     self.player2.hidden = YES;
     self.slider.value = 0;
@@ -83,12 +82,12 @@
 }
 - (IBAction)player2Show:(id)sender {
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.playerView pause];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.playerView stop];
         self.player2.hidden = NO;
     });
     
-    [self.player2 playWithURLAsset:self.playerView.currentAsset autoPlay:YES intialSecond:CMTimeGetSeconds(self.playerView.currentItem.currentTime)];
+    [self.player2 playWithURLAsset:self.playerView.currentItem.asset autoPlay:YES intialSecond:CMTimeGetSeconds(self.playerView.currentItem.currentTime)];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
@@ -100,8 +99,6 @@
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status
 {
     if (self.player2 == playerView) {
-        if (status == DLPlayerStatusPlaying) {
-        }
         return;
     }
     
