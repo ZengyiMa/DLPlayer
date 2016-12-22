@@ -96,6 +96,9 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)releasePlayer
 {
+    if (!self.player) {
+        return;
+    }
     [self.playerLayer removeFromSuperlayer];
     [self.player pause];
     self.player = nil;
