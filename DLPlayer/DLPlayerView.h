@@ -13,14 +13,14 @@
 
 typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
     DLPlayerStatusPrepareIdle,      ///<<< 初始状态
-    DLPlayerStatusPrepareStart,     ///<<< 准备开始
-    DLPlayerStatusPrepareEnd,       ///<<< 准备完毕
-    DLPlayerStatusReadyToPlay,      ///<<< 可以播放
-    DLPlayerStatusPlaying,          ///<<< 播放中
-    DLPlayerStatusPause,            ///<<< 暂停
-    DLPlayerStatusStop,             ///<<< 播放停止
-    DLPlayerStatusStalledStart,     ///<<< 卡顿开始，loading中，播放队列空了
-    DLPlayerStatusStalledEnd,       ///<<< 卡顿结束
+    DLPlayerStatusPrepareStart,     ///<<< 准备开始  播放器在准备中
+    DLPlayerStatusPrepareEnd,       ///<<< 准备完毕  播放器在准备完毕了，不一定可以播放
+    DLPlayerStatusReadyToPlay,      ///<<< 可以播放  播放器就绪可以立即播放
+    DLPlayerStatusPlaying,          ///<<< 播放中    播放在播放中
+    DLPlayerStatusPause,            ///<<< 暂停     手动暂停，不是卡顿
+    DLPlayerStatusStop,             ///<<< 播放停止  播放器停止了会释放所有的资源
+    DLPlayerStatusStalledStart,     ///<<< 卡顿开始，可能网络，或者播放队列空，当前播放器从播放到停止
+    DLPlayerStatusStalledEnd,       ///<<< 卡顿结束, 从卡顿中恢复
     DLPlayerStatusSeekStart,        ///<<< 拖动开始
     DLPlayerStatusSeekEnd,          ///<<< 拖动结束
     DLPlayerStatusFailed,           ///<<< 拖动失败，有错误发生导致播放器无法继续
