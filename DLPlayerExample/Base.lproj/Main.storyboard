@@ -30,7 +30,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UMO-c9-tZh" customClass="DLPlayerView">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
+                                <rect key="frame" x="0.0" y="150" width="375" height="150"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="150" id="eUX-kB-QdT"/>
@@ -108,7 +108,7 @@
                             <constraint firstItem="UJs-Xf-mZG" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="gVv-h8-WTV"/>
                             <constraint firstItem="rJU-L6-vpl" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="8" id="mE2-v6-7Um"/>
                             <constraint firstItem="NgL-A8-PTy" firstAttribute="top" secondItem="TGK-dT-NAd" secondAttribute="bottom" constant="8" id="rw7-RM-RD6"/>
-                            <constraint firstItem="UMO-c9-tZh" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="uNJ-sc-XUI"/>
+                            <constraint firstItem="UMO-c9-tZh" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="150" id="uNJ-sc-XUI"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="top" secondItem="r4Y-5y-NqQ" secondAttribute="bottom" constant="8" id="wHD-NM-7C2"/>
                             <constraint firstItem="hBr-j6-C2D" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="zZK-Vv-jre"/>
                             <constraint firstItem="8sc-UG-0BL" firstAttribute="top" secondItem="NgL-A8-PTy" secondAttribute="bottom" constant="8" id="zxa-ih-uF1"/>

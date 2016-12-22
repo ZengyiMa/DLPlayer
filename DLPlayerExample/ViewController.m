@@ -82,12 +82,14 @@
 }
 - (IBAction)player2Show:(id)sender {
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self.playerView stop];
-        self.player2.hidden = NO;
-    });
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        [self.playerView stop];
+//        self.player2.hidden = NO;
+//    });
     
-    [self.player2 playWithURLAsset:self.playerView.currentItem.asset autoPlay:YES intialSecond:CMTimeGetSeconds(self.playerView.currentItem.currentTime)];
+    
+    
+//    [self.player2 playWithURLAsset:self.playerView.currentItem.asset autoPlay:YES intialTime:self.playerView.currentItem.currentTime];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
