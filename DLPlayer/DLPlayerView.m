@@ -17,19 +17,18 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 @interface DLPlayerView () <DLPlayerAVAssetResourceLoaderDelegate>
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
+
 @property (nonatomic, assign) DLPlayerStatus status;
-@property (nonatomic, strong) AVURLAsset *currentAsset;
+
 @property (nonatomic, strong) AVPlayerItem *currentItem;
-@property (nonatomic, assign) CGFloat currentSecond;
+
 @property (nonatomic, assign) CGFloat duration;
+
 @property (nonatomic, strong) id timeToken;
 @property (nonatomic, assign) BOOL autoPlay;
+
 @property (nonatomic, assign) CGFloat intialSecond;
-
 @property (nonatomic, strong) DLPlayerAVAssetResourceLoader *resourceLoader;
-
-
-
 @end
 
 @implementation DLPlayerView
@@ -61,10 +60,9 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self.layer addSublayer:self.playerLayer];
     self.playerLayer.frame = self.bounds;
     
-    
+
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
-        
         if (weakSelf.player.rate == 0) {
             // 播放没播放,暂停的状态
             return ;
@@ -90,6 +88,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
             }
         }
     }];
+    self.status = DLPlayerStatusPrepareEnd;
 
 }
 
@@ -138,6 +137,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 }
 
 
+
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay
 {
     [self playWithURL:url autoPlay:autoPlay enableCache:self.enableCache intialSecond:0];
@@ -151,35 +151,19 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay enableCache:(BOOL)enableCache intialSecond:(CGFloat)second
 {
-    self.status = DLPlayerStatusPrepareStart;
-    self.intialSecond = second;
-    self.autoPlay = autoPlay;
-    if (self.currentAsset) {
-        [self.player pause];
-        [self.player replaceCurrentItemWithPlayerItem:nil];
-    }
-    
+    AVURLAsset *asset = nil;
     if (enableCache) {
         [self.resourceLoader prepareWithPlayUrl:url];
-        self.currentAsset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
+        asset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
+        [asset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
         [self.resourceLoader start];
     }
     else
     {
-        self.currentAsset = [AVURLAsset assetWithURL:url];
+        asset = [AVURLAsset assetWithURL:url];
     }
-    
-   self.currentItem = [AVPlayerItem playerItemWithAsset:self.currentAsset];
-    __weak typeof(self) weakSelf = self;
-    [self.currentAsset loadValuesAsynchronouslyForKeys:@[@"tracks", @"duration", @"playable"] completionHandler:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (weakSelf.currentAsset.playable) {
-                // 可以播放了
-                [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
-                self.status = DLPlayerStatusPrepareEnd;
-            }
-        });
-    }];
+
+    [self playWithURLAsset:asset autoPlay:autoPlay intialSecond:second];
 }
 
 - (void)playWithURLAsset:(AVURLAsset *)asset autoPlay:(BOOL)autoPlay
@@ -192,23 +176,37 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     self.status = DLPlayerStatusPrepareStart;
     self.intialSecond = second;
     self.autoPlay = autoPlay;
-    if (self.currentAsset) {
-        [self.player pause];
-        [self.player replaceCurrentItemWithPlayerItem:nil];
-    }
-    self.currentAsset = asset;
-    self.currentItem = [AVPlayerItem playerItemWithAsset:self.currentAsset];
-    self.status = DLPlayerStatusPrepareEnd;
     
-    if (self.intialSecond != 0) {
-        // 需要 seek
-        [CATransaction begin];
-        [CATransaction setDisableActions:YES];
-        self.playerLayer.hidden = YES;
-        [CATransaction commit];
+    if (self.player) {
+        [self releasePlayer];
     }
-    [self preparePlayerWithPlayerItem:self.currentItem];
+    
+    self.currentItem = [AVPlayerItem playerItemWithAsset:asset];
+    __weak typeof(self) weakSelf = self;
+    [self.currentItem.asset loadValuesAsynchronouslyForKeys:@[@"playable"] completionHandler:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            AVKeyValueStatus status =
+            [weakSelf.currentItem.asset statusOfValueForKey:@"playable" error:nil];
+            switch (status) {
+                case AVKeyValueStatusLoaded:
+                {
+                    self.status = DLPlayerStatusPrepareEnd;
+                    [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
+                }
+                    break;
+                case AVKeyValueStatusUnknown:
+                case AVKeyValueStatusFailed:
+                case AVKeyValueStatusCancelled:
+                    // Loading cancelled
+                    break;
+                case AVKeyValueStatusLoading:
+                    // loading
+                    break;
+            }
+        });
+    }];
 }
+
 
 - (void)resume
 {
@@ -238,7 +236,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)replay
 {
-    [self stopWithSeekToStart:YES];
+    [self.player seekToTime:kCMTimeZero];
     [self resume];
 }
 
@@ -293,24 +291,18 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         if (status == AVPlayerStatusReadyToPlay) {
             self.status = DLPlayerStatusReadyToPlay;
             if (self.intialSecond != 0) {
-                int32_t timeScale = self.player.currentItem.asset.duration.timescale;
-                CMTime time = CMTimeMakeWithSeconds(self.intialSecond, timeScale);
-                [self.player seekToTime:time toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
-                    
-                    [CATransaction begin];
-                    [CATransaction setDisableActions:YES];
-                    self.playerLayer.hidden = NO;
-                    [CATransaction commit];
-                    [weakSelf.player play];
-
+                [self.player seekToTime:CMTimeMake(self.intialSecond, self.currentItem.asset.duration.timescale) completionHandler:^(BOOL finished) {
+                    if (weakSelf.autoPlay) {
+                        [weakSelf.player play];
+                    }
                 }];
-                return;
             }
-
-            if (self.autoPlay) {
-                [self.player play];
+            else
+            {
+                if (weakSelf.autoPlay) {
+                    [weakSelf.player play];
+                }
             }
-
         }
         else if(status == AVPlayerStatusFailed)
         {
@@ -323,7 +315,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 - (void)didReceiveAVPlayerItemDidPlayToEndTimeNotification:(NSNotification *)notification
 {
     AVPlayerItem *item = notification.object;
-    if (self.currentAsset != item.asset) {
+    if (self.currentItem.asset != item.asset) {
         return;
     }
     
@@ -368,17 +360,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 }
 
 
-#pragma mark - seter
-
-- (void)setCurrentAsset:(AVURLAsset *)currentAsset
-{
-    _currentAsset = currentAsset;
-    if (self.enableCache) {
-        [_currentAsset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
-    }
-}
-
-
+#pragma mark - setter
 
 - (void)setStatus:(DLPlayerStatus)status
 {
@@ -394,7 +376,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)setPlayToTime:(CGFloat)second
 {
-    _currentSecond = second;
     if ([self.delegate respondsToSelector:@selector(playerView:didPlayToSecond:)]) {
         [self.delegate playerView:self didPlayToSecond:second];
     }

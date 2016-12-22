@@ -41,7 +41,6 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @property (nonatomic, weak) id<DLPlayerDelegate> delegate;
 @property (nonatomic, assign, readonly) DLPlayerStatus status;
 @property (nonatomic, assign, readonly) CGFloat duration;
-@property (nonatomic, assign, readonly) CGFloat currentSecond;
 @property (nonatomic, strong, readonly) AVPlayerItem *currentItem;
 
 #pragma mark - play
@@ -59,9 +58,6 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (void)beginSeek;
 - (void)seekToSecond:(CGFloat)second;
 - (void)endSeek;
-
-- (void)forceSeekToSecond:(CGFloat)second;
-
 #pragma mark - tools
 + (UIImage *)imageFromAVAsset:(AVAsset *)avasset atTime:(CMTime)time;
 
