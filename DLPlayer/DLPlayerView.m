@@ -343,11 +343,9 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     imageGenerator.appliesPreferredTrackTransform = YES;
     CGImageRef imageRef = [imageGenerator copyCGImageAtTime:time actualTime:NULL error:NULL];
     UIImage *image = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);  // CGImageRef won't be released by ARC
+    CGImageRelease(imageRef);
     return image;
 }
-
-
 
 
 #pragma mark - delegate

@@ -60,5 +60,4 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 #pragma mark - tools
 + (UIImage *)imageFromAVAsset:(AVAsset *)avasset atTime:(CMTime)time;
 
-
 @end
