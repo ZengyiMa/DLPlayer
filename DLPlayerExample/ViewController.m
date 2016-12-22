@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "DLPlayerView.h"
+#import "DLPlayerManager.h"
 
 @interface ViewController ()<DLPlayerDelegate>
 @property (strong, nonatomic) IBOutlet UILabel *statusLabel;
@@ -24,7 +25,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didReceivePreload:) name:DLPlayerManagerPreloadCompleteNotification object:nil];
     
     self.player2.hidden = YES;
     self.slider.value = 0;
@@ -34,6 +35,8 @@
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpInside];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpOutside];
 
+    [[DLPlayerManager manager]addPreloadUrl:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"]];
+    
 //    self.playerView.enableCache = YES;
     self.playerView.delegate = self;
     self.statusDic = @{@(DLPlayerStatusPrepareStart):@"准备开始",
@@ -49,8 +52,13 @@
                        @(DLPlayerStatusPrepareIdle):@"默认状态",
                        @(DLPlayerStatusFailed):@"错误",
                        };
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:5];
+//    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:5];
 //    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:10];
+}
+
+- (void)didReceivePreload:(NSNotification *)noti
+{
+    [self.playerView playWithURLAsset:noti.object autoPlay:YES];
 }
 
 - (IBAction)statr:(id)sender {

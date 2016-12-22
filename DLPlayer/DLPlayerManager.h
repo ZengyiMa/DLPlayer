@@ -10,6 +10,12 @@
 #import <AVFoundation/AVFoundation.h>
 
 
+FOUNDATION_EXTERN NSString *DLPlayerManagerPreloadCompleteNotification;
+
+
+
+
+
 
 // 播放管理类
 @interface DLPlayerManager: NSObject
@@ -20,6 +26,7 @@
 - (void)addPreloadUrl:(NSURL *)url;
 
 
+- (AVURLAsset *)getPreloadUrl:(NSURL *)url;
 
 
 @end
