@@ -225,14 +225,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self releasePlayer];
 }
 
-- (void)stopWithSeekToStart:(BOOL)seekToStart
-{
-    [self.player pause];
-    if (seekToStart) {
-        [self.player seekToTime:kCMTimeZero];
-    }
-    self.status = DLPlayerStatusStop;
-}
 
 - (void)replay
 {
@@ -319,13 +311,19 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         return;
     }
     
+    
     // 播放完毕
     BOOL seekToStart = NO;
     if ([self.delegate respondsToSelector:@selector(shouldSeekToStartWhenPlayToEndTimeOfPlayerView:)]) {
         seekToStart = [self.delegate respondsToSelector:@selector(shouldSeekToStartWhenPlayToEndTimeOfPlayerView:)];
     }
-    [self stopWithSeekToStart:seekToStart];
+    
+    if (seekToStart) {
+        [self.player seekToTime:kCMTimeZero];
+    }
+    self.status = DLPlayerStatusStop;
 }
+
 
 - (void)didReceiveAVPlayerItemPlaybackStalledNotification
 {
@@ -335,7 +333,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)dealloc
 {
-    
+    [self releasePlayer];
 }
 
 

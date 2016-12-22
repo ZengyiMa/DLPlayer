@@ -52,7 +52,6 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 - (void)resume;
 - (void)pause;
 - (void)stop;
-- (void)stopWithSeekToStart:(BOOL)seekToStart;
 - (void)replay;
 #pragma mark - seek
 - (void)beginSeek;
