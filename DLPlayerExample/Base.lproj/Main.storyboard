@@ -73,8 +73,8 @@
                                 <rect key="frame" x="14" y="541" width="347" height="31"/>
                             </slider>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VSt-UB-Q7R">
-                                <rect key="frame" x="286" y="579" width="73" height="30"/>
-                                <state key="normal" title="切换Player"/>
+                                <rect key="frame" x="282" y="579" width="77" height="30"/>
+                                <state key="normal" title="加载预缓存"/>
                                 <connections>
                                     <action selector="player2Show:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Hep-qV-bVc"/>
                                 </connections>

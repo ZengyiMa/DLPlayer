@@ -26,14 +26,13 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     
+    
     self.slider.value = 0;
     [self.slider addTarget:self action:@selector(slideValueChange) forControlEvents:UIControlEventValueChanged];
     [self.slider addTarget:self action:@selector(beginSeek) forControlEvents:UIControlEventTouchDown];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchCancel];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpInside];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpOutside];
-
-    
     
     self.playerView.delegate = self;
     self.statusDic = @{@(DLPlayerStatusPrepareStart):@"准备开始",
@@ -49,7 +48,10 @@
                        @(DLPlayerStatusPrepareIdle):@"默认状态",
                        @(DLPlayerStatusFailed):@"错误",
                        };
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:0];
+    
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:0];
+    //    [[DLPlayerManager manager]addPreloadUrl:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"];
+
 //    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:10];
 }
 
@@ -85,6 +87,9 @@
     [self.playerView seekToSecond:self.slider.value];
 }
 - (IBAction)player2Show:(id)sender {
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:0];
+
+//    [self.playerView playWithPreloadUrl:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second

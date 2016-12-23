@@ -60,6 +60,17 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     [self.layer addSublayer:self.playerLayer];
     self.playerLayer.frame = self.bounds;
     
+    
+    // KVO
+    [self addObserver:self
+           forKeyPath:DLPlayerItemStatus
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
+    
+    [self addObserver:self
+           forKeyPath:DLPlayerItemDuration
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:nil];
 
     __weak typeof(self) weakSelf = self;
     self.timeToken =  [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 60) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
@@ -112,17 +123,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)initPlayerView
 {
-    // KVO
-    [self addObserver:self
-           forKeyPath:DLPlayerItemStatus
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
-    
-    [self addObserver:self
-           forKeyPath:DLPlayerItemDuration
-              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
-              context:nil];
-
+   
     // Notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemDidPlayToEndTimeNotification:) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveAVPlayerItemPlaybackStalledNotification) name:AVPlayerItemPlaybackStalledNotification object:nil];
@@ -161,8 +162,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     {
         asset = [AVURLAsset assetWithURL:url];
     }
-
-    
     [self playWithURLAsset:asset autoPlay:autoPlay intialSecond:second];
 }
 
@@ -176,35 +175,44 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     self.status = DLPlayerStatusPrepareStart;
     self.intialSecond = second;
     self.autoPlay = autoPlay;
-       if (self.player) {
+    if (self.player) {
         [self releasePlayer];
     }
     self.currentItem = [AVPlayerItem playerItemWithAsset:asset];
     __weak typeof(self) weakSelf = self;
     
-    [self.currentItem.asset loadValuesAsynchronouslyForKeys:@[@"playable"] completionHandler:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            AVKeyValueStatus status =
-            [weakSelf.currentItem.asset statusOfValueForKey:@"playable" error:nil];
-            switch (status) {
-                case AVKeyValueStatusLoaded:
-                {
-                    self.status = DLPlayerStatusPrepareEnd;
-                    [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
+    AVKeyValueStatus status = [weakSelf.currentItem.asset statusOfValueForKey:@"playable" error:nil];
+    if (status == AVKeyValueStatusLoaded) {
+        self.status = DLPlayerStatusPrepareEnd;
+        [self preparePlayerWithPlayerItem:self.currentItem];
+    }
+    else
+    {
+        [self.currentItem.asset loadValuesAsynchronouslyForKeys:@[@"playable"] completionHandler:^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                AVKeyValueStatus status =
+                [weakSelf.currentItem.asset statusOfValueForKey:@"playable" error:nil];
+                switch (status) {
+                    case AVKeyValueStatusLoaded:
+                    {
+                        self.status = DLPlayerStatusPrepareEnd;
+                        [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
+                    }
+                        break;
+                    case AVKeyValueStatusUnknown:
+                    case AVKeyValueStatusFailed:
+                    case AVKeyValueStatusCancelled:
+                        // Loading cancelled
+                        break;
+                    case AVKeyValueStatusLoading:
+                        // loading
+                        break;
                 }
-                    break;
-                case AVKeyValueStatusUnknown:
-                case AVKeyValueStatusFailed:
-                case AVKeyValueStatusCancelled:
-                    // Loading cancelled
-                    break;
-                case AVKeyValueStatusLoading:
-                    // loading
-                    break;
-            }
+                
+            });
+        }];
 
-        });
-    }];
+    }
 }
 
 
@@ -392,6 +400,18 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 @implementation DLPlayerView (DLPreload)
 
+- (void)playWithPreloadUrl:(NSString *)url
+{
+    self.status = DLPlayerStatusPrepareStart;
+    [[DLPlayerManager manager]getPreloadAsset:url withBlock:^(AVURLAsset *asset) {
+            if (asset == nil) {
+                asset = [AVURLAsset assetWithURL:[NSURL URLWithString:url]];
+            }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self playWithURLAsset:asset autoPlay:YES];
+        });
+    }];
+}
 
 
 @end

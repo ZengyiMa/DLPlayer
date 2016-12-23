@@ -117,6 +117,7 @@ NSString *DLPlayerManagerPreloadCompleteNotification = @"DLPlayerManagerPreloadC
         switch (status) {
             case AVKeyValueStatusLoaded:
             {
+                NSLog(@"loadValuesAsynchronouslyForKeys done");
                 for (DLPlayerManagerAssetBlock block in weakPreloadAssset.blocks) {
                     block(weakAsset);
                 }
@@ -141,10 +142,4 @@ NSString *DLPlayerManagerPreloadCompleteNotification = @"DLPlayerManagerPreloadC
 {
     [self.assetDictionry removeObjectForKey:url];
 }
-
-
-
-
-
-
 @end
