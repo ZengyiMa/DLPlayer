@@ -33,17 +33,7 @@
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpInside];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpOutside];
 
-    
-//    [[DLPlayerManager manager]getPreloadUrl:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4" withBlock:^(AVURLAsset *asset) {
-//        
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [self.playerView playWithURLAsset:asset autoPlay:YES];
-//        });
-//        
-//    }];
-    
-    
-//    self.playerView.enableCache = YES;
+
     self.playerView.delegate = self;
     self.statusDic = @{@(DLPlayerStatusPrepareStart):@"准备开始",
                        @(DLPlayerStatusPrepareEnd):@"准备结束",
@@ -104,14 +94,11 @@
 
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status
 {
-        if (self.player2 == playerView) {
-            return;
-        }
-        if (status == DLPlayerStatusReadyToPlay) {
-            self.slider.maximumValue = self.playerView.duration;
-        }
-        NSLog(@"播放器状态:%@", self.statusDic[@(status)]);
-        self.statusLabel.text = [NSString stringWithFormat:@"播放器状态：%@", self.statusDic[@(status)]];
+    if (status == DLPlayerStatusReadyToPlay) {
+        self.slider.maximumValue = self.playerView.duration;
+    }
+    NSLog(@"播放器状态:%@", self.statusDic[@(status)]);
+    self.statusLabel.text = [NSString stringWithFormat:@"播放器状态：%@", self.statusDic[@(status)]];
 }
 
 - (void)didReceiveMemoryWarning {
