@@ -89,7 +89,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         }
     }];
     self.status = DLPlayerStatusPrepareEnd;
-
 }
 
 
@@ -107,6 +106,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     if (self.timeToken) {
         [self.player removeTimeObserver:self.timeToken];
     }
+    [self.resourceLoader stop];
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
@@ -152,7 +152,18 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay enableCache:(BOOL)enableCache intialSecond:(CGFloat)second
 {
     AVURLAsset *asset = nil;
-    asset = [AVURLAsset assetWithURL:url];
+    if (self.enableCache) {
+        [self.resourceLoader prepareWithPlayUrl:asset.URL];
+        asset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
+        [asset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
+        [self.resourceLoader start];
+    }
+    else
+    {
+        asset = [AVURLAsset assetWithURL:url];
+    }
+
+    
     [self playWithURLAsset:asset autoPlay:autoPlay intialSecond:second];
 }
 
@@ -166,13 +177,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     self.status = DLPlayerStatusPrepareStart;
     self.intialSecond = second;
     self.autoPlay = autoPlay;
-    if (self.enableCache) {
-        [self.resourceLoader prepareWithPlayUrl:asset.URL];
-        asset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
-        [asset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
-        [self.resourceLoader start];
-    }
-    if (self.player) {
+       if (self.player) {
         [self releasePlayer];
     }
     self.currentItem = [AVPlayerItem playerItemWithAsset:asset];

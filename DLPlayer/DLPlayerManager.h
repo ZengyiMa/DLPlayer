@@ -14,12 +14,10 @@ typedef void(^DLPlayerManagerAssetBlock)(AVURLAsset *asset);
 
 FOUNDATION_EXTERN NSString *DLPlayerManagerPreloadCompleteNotification;
 
-
 // 播放管理类
 @interface DLPlayerManager: NSObject
 
 + (instancetype)manager;
-
 
 
 - (void)addPreloadAsset:(AVURLAsset *)asset;
