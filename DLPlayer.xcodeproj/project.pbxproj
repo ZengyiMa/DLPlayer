@@ -15,6 +15,7 @@
 		8549E8151E011BCB009789B8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8549E8131E011BCB009789B8 /* LaunchScreen.storyboard */; };
 		8549E81C1E011C02009789B8 /* DLPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8549E81B1E011C02009789B8 /* DLPlayerView.m */; };
 		855432D71E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 855432D61E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.m */; };
+		85660D7F1E0CD86900C96705 /* DLPlayerAsset.m in Sources */ = {isa = PBXBuildFile; fileRef = 85660D7E1E0CD86900C96705 /* DLPlayerAsset.m */; };
 		8595CE1C1E0919AE00CB2D24 /* DLPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8595CE1B1E0919AE00CB2D24 /* DLPlayerManager.m */; };
 /* End PBXBuildFile section */
 
@@ -33,6 +34,8 @@
 		8549E81B1E011C02009789B8 /* DLPlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLPlayerView.m; sourceTree = "<group>"; };
 		855432D51E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLPlayerAVAssetResourceLoader.h; sourceTree = "<group>"; };
 		855432D61E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLPlayerAVAssetResourceLoader.m; sourceTree = "<group>"; };
+		85660D7D1E0CD86900C96705 /* DLPlayerAsset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLPlayerAsset.h; sourceTree = "<group>"; };
+		85660D7E1E0CD86900C96705 /* DLPlayerAsset.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLPlayerAsset.m; sourceTree = "<group>"; };
 		8595CE1A1E0919AE00CB2D24 /* DLPlayerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLPlayerManager.h; sourceTree = "<group>"; };
 		8595CE1B1E0919AE00CB2D24 /* DLPlayerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLPlayerManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -66,6 +69,8 @@
 				8595CE1B1E0919AE00CB2D24 /* DLPlayerManager.m */,
 				855432D51E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.h */,
 				855432D61E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.m */,
+				85660D7D1E0CD86900C96705 /* DLPlayerAsset.h */,
+				85660D7E1E0CD86900C96705 /* DLPlayerAsset.m */,
 			);
 			path = DLPlayer;
 			sourceTree = "<group>";
@@ -177,6 +182,7 @@
 				855432D71E09224C0033FCAF /* DLPlayerAVAssetResourceLoader.m in Sources */,
 				8549E81C1E011C02009789B8 /* DLPlayerView.m in Sources */,
 				8549E80A1E011BCB009789B8 /* AppDelegate.m in Sources */,
+				85660D7F1E0CD86900C96705 /* DLPlayerAsset.m in Sources */,
 				8549E8071E011BCB009789B8 /* main.m in Sources */,
 				8595CE1C1E0919AE00CB2D24 /* DLPlayerManager.m in Sources */,
 			);

@@ -152,17 +152,8 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 - (void)playWithURL:(NSURL *)url autoPlay:(BOOL)autoPlay enableCache:(BOOL)enableCache intialSecond:(CGFloat)second
 {
     AVURLAsset *asset = nil;
-    if (enableCache) {
-        [self.resourceLoader prepareWithPlayUrl:url];
-        asset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
-        [asset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
-        [self.resourceLoader start];
-    }
-    else
-    {
-        asset = [AVURLAsset assetWithURL:url];
-    }
-
+    self.enableCache = enableCache;
+    asset = [AVURLAsset assetWithURL:url];
     [self playWithURLAsset:asset autoPlay:autoPlay intialSecond:second];
 }
 
@@ -177,34 +168,40 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     self.intialSecond = second;
     self.autoPlay = autoPlay;
     
+    if (self.enableCache) {
+        [self.resourceLoader prepareWithPlayUrl:asset.URL];
+        asset = [AVURLAsset assetWithURL:self.resourceLoader.mediaUrl];
+        [asset.resourceLoader setDelegate:self.resourceLoader queue:dispatch_get_main_queue()];
+        [self.resourceLoader start];
+    }
+    
     if (self.player) {
         [self releasePlayer];
     }
     
     self.currentItem = [AVPlayerItem playerItemWithAsset:asset];
     __weak typeof(self) weakSelf = self;
+    
     [self.currentItem.asset loadValuesAsynchronouslyForKeys:@[@"playable"] completionHandler:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            AVKeyValueStatus status =
-            [weakSelf.currentItem.asset statusOfValueForKey:@"playable" error:nil];
-            switch (status) {
-                case AVKeyValueStatusLoaded:
-                {
-                    self.status = DLPlayerStatusPrepareEnd;
-                    [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
+                AVKeyValueStatus status =
+                [weakSelf.currentItem.asset statusOfValueForKey:@"playable" error:nil];
+                switch (status) {
+                    case AVKeyValueStatusLoaded:
+                    {
+                        self.status = DLPlayerStatusPrepareEnd;
+                        [weakSelf preparePlayerWithPlayerItem:weakSelf.currentItem];
+                    }
+                        break;
+                    case AVKeyValueStatusUnknown:
+                    case AVKeyValueStatusFailed:
+                    case AVKeyValueStatusCancelled:
+                        // Loading cancelled
+                        break;
+                    case AVKeyValueStatusLoading:
+                        // loading
+                        break;
                 }
-                    break;
-                case AVKeyValueStatusUnknown:
-                case AVKeyValueStatusFailed:
-                case AVKeyValueStatusCancelled:
-                    // Loading cancelled
-                    break;
-                case AVKeyValueStatusLoading:
-                    // loading
-                    break;
-            }
-        });
-    }];
+        }];
 }
 
 

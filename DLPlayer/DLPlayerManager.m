@@ -15,9 +15,36 @@
 NSString *DLPlayerManagerPreloadCompleteNotification = @"DLPlayerManagerPreloadCompleteNotification";
 
 
+@interface  DLPlayerManagerPreloadAsset: NSObject
+
+@property (nonatomic, strong) AVURLAsset *asset;
+@property (nonatomic, strong) NSMutableArray *blocks;
+
+
+@end
+
+@implementation DLPlayerManagerPreloadAsset
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.blocks = [NSMutableArray array];
+    }
+    return self;
+}
+
+@end
+
+
+
+
+
 @interface DLPlayerManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *assetDictionry;
+
+@property (nonatomic, strong) NSMutableDictionary *blocksDictionary;
 @end
 
 
@@ -43,46 +70,71 @@ NSString *DLPlayerManagerPreloadCompleteNotification = @"DLPlayerManagerPreloadC
 }
 
 
-- (AVURLAsset *)getPreloadUrl:(NSURL *)url
+- (void)getPreloadAsset:(NSString *)url withBlock:(DLPlayerManagerAssetBlock)block;
 {
-    if (url.absoluteString.length == 0) {
-        return nil;
+    if (self.assetDictionry[url]) {
+        // 存在
+        DLPlayerManagerPreloadAsset *asset =  self.assetDictionry[url];
+        AVKeyValueStatus status = [asset.asset statusOfValueForKey:@"playable" error:nil];
+        if (status == AVKeyValueStatusLoaded) {
+            [asset.blocks removeAllObjects];
+            if (block) {
+                block(asset.asset);
+            }
+        }
+        else
+        {
+            [asset.blocks addObject:block];
+        }
     }
-    return self.assetDictionry[url.absoluteString];
+    else
+    {
+        // 不存在
+        if (block) {
+            block(nil);
+        }
+    }
 }
 
-- (void)addPreloadUrl:(NSURL *)url
+
+- (void)addPreloadAsset:(AVURLAsset *)urlAssets;
 {
-    if (url.absoluteString.length == 0) {
+    if (urlAssets.URL.absoluteString.length == 0) {
         return;
     }
     
-    AVURLAsset *assets = [AVURLAsset assetWithURL:url];
-    self.assetDictionry[url.absoluteString] = assets;
-    __weak typeof(assets) weakAsset = assets;
-    [assets loadValuesAsynchronouslyForKeys:@[@"playable"] completionHandler:^{
+    if (self.assetDictionry[urlAssets.URL.absoluteString]) {
+        return;
+    }
+    
+    DLPlayerManagerPreloadAsset *asset = [DLPlayerManagerPreloadAsset new];
+    asset.asset = urlAssets;
+    self.assetDictionry[urlAssets.URL.absoluteString] = asset;
+    __weak typeof(asset.asset) weakAsset = asset.asset;
+    __weak typeof(asset) weakPreloadAssset = asset;
+    [asset.asset loadValuesAsynchronouslyForKeys:@[@"playable"] completionHandler:^{
         AVKeyValueStatus status = [weakAsset statusOfValueForKey:@"playable" error:nil];
         switch (status) {
             case AVKeyValueStatusLoaded:
             {
-                [[NSNotificationCenter defaultCenter]postNotificationName:DLPlayerManagerPreloadCompleteNotification object:weakAsset];
-                // loaded
+                for (DLPlayerManagerAssetBlock block in weakPreloadAssset.blocks) {
+                    block(weakAsset);
+                }
             }
                 break;
-            case AVKeyValueStatusUnknown:
-            case AVKeyValueStatusFailed:
-            case AVKeyValueStatusCancelled:
-                // Loading cancelled
-                break;
-            case AVKeyValueStatusLoading:
-                // loading
+           default:
+            {
+                [self.assetDictionry removeObjectForKey:weakAsset.URL.absoluteString];
+            }
                 break;
         }
-
     }];
-    
-    
-    
+}
+
+
+- (void)removePreloadUrl:(NSString *)url
+{
+    [self.assetDictionry removeObjectForKey:url];
 }
 
 

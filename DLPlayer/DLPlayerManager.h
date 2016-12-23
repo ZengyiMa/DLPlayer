@@ -10,11 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 
 
+typedef void(^DLPlayerManagerAssetBlock)(AVURLAsset *asset);
+
 FOUNDATION_EXTERN NSString *DLPlayerManagerPreloadCompleteNotification;
-
-
-
-
 
 
 // 播放管理类
@@ -23,10 +21,9 @@ FOUNDATION_EXTERN NSString *DLPlayerManagerPreloadCompleteNotification;
 + (instancetype)manager;
 
 
-- (void)addPreloadUrl:(NSURL *)url;
 
-
-- (AVURLAsset *)getPreloadUrl:(NSURL *)url;
-
+- (void)addPreloadAsset:(AVURLAsset *)asset;
+- (void)getPreloadAsset:(NSString *)url withBlock:(DLPlayerManagerAssetBlock)block;
+- (void)removePreloadUrl:(NSString *)url;
 
 @end

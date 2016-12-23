@@ -25,9 +25,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(didReceivePreload:) name:DLPlayerManagerPreloadCompleteNotification object:nil];
     
-    self.player2.hidden = YES;
     self.slider.value = 0;
     [self.slider addTarget:self action:@selector(slideValueChange) forControlEvents:UIControlEventValueChanged];
     [self.slider addTarget:self action:@selector(beginSeek) forControlEvents:UIControlEventTouchDown];
@@ -35,7 +33,15 @@
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpInside];
     [self.slider addTarget:self action:@selector(endSeek) forControlEvents:UIControlEventTouchUpOutside];
 
-    [[DLPlayerManager manager]addPreloadUrl:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"]];
+    
+//    [[DLPlayerManager manager]getPreloadUrl:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4" withBlock:^(AVURLAsset *asset) {
+//        
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.playerView playWithURLAsset:asset autoPlay:YES];
+//        });
+//        
+//    }];
+    
     
 //    self.playerView.enableCache = YES;
     self.playerView.delegate = self;
@@ -52,13 +58,12 @@
                        @(DLPlayerStatusPrepareIdle):@"默认状态",
                        @(DLPlayerStatusFailed):@"错误",
                        };
-//    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:5];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:0];
 //    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:10];
 }
 
 - (void)didReceivePreload:(NSNotification *)noti
 {
-    [self.playerView playWithURLAsset:noti.object autoPlay:YES];
 }
 
 - (IBAction)statr:(id)sender {
@@ -93,22 +98,20 @@
 
 - (void)playerView:(DLPlayerView *)playerView didPlayToSecond:(CGFloat)second
 {
-    self.slider.value = second;
-    self.timeLabel.text = [NSString stringWithFormat:@"当前时间：%fs, 总时间：%fs",second, playerView.duration];
+        self.slider.value = second;
+        self.timeLabel.text = [NSString stringWithFormat:@"当前时间：%fs, 总时间：%fs",second, playerView.duration];
 }
 
 - (void)playerView:(DLPlayerView *)playerView didChangedStatus:(DLPlayerStatus)status
 {
-    if (self.player2 == playerView) {
-        return;
-    }
-    
-    
-    if (status == DLPlayerStatusReadyToPlay) {
-        self.slider.maximumValue = self.playerView.duration;
-    }
-    NSLog(@"播放器状态:%@", self.statusDic[@(status)]);
-    self.statusLabel.text = [NSString stringWithFormat:@"播放器状态：%@", self.statusDic[@(status)]];
+        if (self.player2 == playerView) {
+            return;
+        }
+        if (status == DLPlayerStatusReadyToPlay) {
+            self.slider.maximumValue = self.playerView.duration;
+        }
+        NSLog(@"播放器状态:%@", self.statusDic[@(status)]);
+        self.statusLabel.text = [NSString stringWithFormat:@"播放器状态：%@", self.statusDic[@(status)]];
 }
 
 - (void)didReceiveMemoryWarning {
