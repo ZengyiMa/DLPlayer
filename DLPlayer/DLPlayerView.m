@@ -71,7 +71,6 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
         // 防止状态提前改变
         if (second > 0.1) {
             [weakSelf setPlayToTime:CMTimeGetSeconds(time)];
-            
             switch (weakSelf.status) {
                 case DLPlayerStatusStalledStart:
                     weakSelf.status = DLPlayerStatusStalledEnd;
@@ -388,8 +387,10 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
     return _resourceLoader;
 }
 
+@end
 
 
+@implementation DLPlayerView (DLPreload)
 
 
 

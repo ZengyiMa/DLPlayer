@@ -111,3 +111,14 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 + (UIImage *)imageFromAVAsset:(AVAsset *)avasset atTime:(CMTime)time;
 
 @end
+
+
+@interface DLPlayerView (DLPreload)
+
+- (void)playWithPreloadUrl:(NSString *)url;
+
+@end
+
+
+
+

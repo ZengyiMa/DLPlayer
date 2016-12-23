@@ -131,11 +131,18 @@ NSString *DLPlayerManagerPreloadCompleteNotification = @"DLPlayerManagerPreloadC
     }];
 }
 
+- (void)addPreloadUrl:(NSString *)url
+{
+    [self addPreloadAsset:[AVURLAsset assetWithURL:[NSURL URLWithString:url]]];
+}
+
 
 - (void)removePreloadUrl:(NSString *)url
 {
     [self.assetDictionry removeObjectForKey:url];
 }
+
+
 
 
 
