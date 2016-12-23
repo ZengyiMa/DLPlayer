@@ -20,6 +20,7 @@ FOUNDATION_EXTERN NSString *DLPlayerManagerPreloadCompleteNotification;
 + (instancetype)manager;
 
 
+// 预加载
 - (void)addPreloadAsset:(AVURLAsset *)asset;
 - (void)getPreloadAsset:(NSString *)url withBlock:(DLPlayerManagerAssetBlock)block;
 - (void)removePreloadUrl:(NSString *)url;

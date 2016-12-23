@@ -57,11 +57,18 @@ typedef NS_ENUM(NSUInteger, DLPlayerStatus) {
 @end
 
 
+/// 播放器
+@protocol DLPlayerManagerDelegate <NSObject>
+@end
+
+
+
+
 @interface DLPlayerView : UIView
 
 
 /**
- 开启缓存，默认为 NO
+ 开启缓存，默认为 NO， 如果使用 playWithURLAsset 播放视频，那么将忽略这个属性
  */
 @property (nonatomic, assign) BOOL enableCache;
 

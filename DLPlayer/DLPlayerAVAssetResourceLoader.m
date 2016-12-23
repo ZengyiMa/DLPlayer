@@ -66,6 +66,7 @@ NSString *DLPlayerAVAssetResourceLoaderPrefix = @"DLPlayer";
 
 - (void)prepareWithPlayUrl:(NSURL *)url threshold:(NSUInteger)bytes
 {
+    [self stop];
     self.cacheFileName = [DLPlayerAVAssetResourceLoader md5StringFromString:url.absoluteString];
     self.originMediaUrl = url;
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
