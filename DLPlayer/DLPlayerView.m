@@ -230,6 +230,7 @@ static NSString *DLPlayerItemDuration = @"player.currentItem.duration";
 
 - (void)stop
 {
+    self.status = DLPlayerStatusStop;
     [self releasePlayer];
 }
 
