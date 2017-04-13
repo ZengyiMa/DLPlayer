@@ -49,11 +49,7 @@
                        @(DLPlayerStatusFailed):@"错误",
                        };
     
-//    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:0];
-    //    [[DLPlayerManager manager]addPreloadUrl:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"];
-    
-    [self.playerView playWithURL:[NSURL URLWithString:@"http://img1.famulei.com/video/20160814/XMTQ5NzcyODIxNg==.mp4"] autoPlay:YES intialSecond:0];
-//    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:10];
+    [self.playerView playWithURL:[NSURL URLWithString:@"http://krtv.qiniudn.com/150522nextapp"] autoPlay:YES intialSecond:0];
 }
 
 
